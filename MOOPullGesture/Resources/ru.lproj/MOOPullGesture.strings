@@ -1,0 +1,11 @@
+/* 
+  MOOPullGesture.strings
+  MOOPullGesture
+
+  Created by The Molloys on 10/17/12.
+
+*/
+
+"Loading..." = "Грузиться…";
+"Pull to refresh..." = "Потяните вниз, чтобы обновить…";
+"Release to refresh..." = "Отпустите, чтобы обновить…";

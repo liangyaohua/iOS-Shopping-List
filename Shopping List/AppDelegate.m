@@ -7,6 +7,11 @@
 //
 
 #import "AppDelegate.h"
+#import "ProductListViewController.h"
+#import "ShoppingListsViewController.h"
+#import "Product.h"
+#import "ShoppingList.h"
+#import "ShoppingItem.h"
 
 @implementation AppDelegate
 
@@ -16,11 +21,79 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [self seedExampleData];
+    
+    ProductListViewController *productListViewController = [[ProductListViewController alloc] initWithSharedContext:self.managedObjectContext];
+    UINavigationController *productListNavigationController = [[UINavigationController alloc] initWithRootViewController:productListViewController];
+    productListNavigationController.tabBarItem.image = [UIImage imageNamed:@"product.png"];
+    
+    ShoppingListsViewController *shoppingListsViewController = [[ShoppingListsViewController alloc] initWithSharedContext:self.managedObjectContext];
+    UINavigationController *shoppingListNavigationController = [[UINavigationController alloc] initWithRootViewController:shoppingListsViewController];
+    shoppingListNavigationController.tabBarItem.image = [UIImage imageNamed:@"cart.png"];
+    
+    UITabBarController *tabBarController = [[UITabBarController alloc] init];
+    [tabBarController setViewControllers:@[shoppingListNavigationController,productListNavigationController]];
+    
+    UIColor *orange = [UIColor colorWithRed:1.0 green:0.51 blue:0.0 alpha:1.0];
+    
+    shoppingListNavigationController.navigationBar.barTintColor =
+    productListNavigationController.navigationBar.barTintColor = orange;    shoppingListNavigationController.navigationBar.tintColor =
+    productListNavigationController.navigationBar.tintColor = [UIColor whiteColor];
+    [shoppingListNavigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor whiteColor]}];
+    [productListNavigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor whiteColor]}];
+
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:NO];
+    
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor whiteColor];
+    self.window.tintColor = orange;
+    
+    [self.window setRootViewController:tabBarController];
     [self.window makeKeyAndVisible];
     return YES;
+}
+
+- (void)seedExampleData
+{
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    
+    if (![ud boolForKey:@"ShoppingListUserDefaultsExampleData"]) {
+        NSLog(@"Application does not have data. Seeding with example data");
+        
+        NSMutableArray *products = [[NSMutableArray alloc] init];
+        Product *coke = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
+        [coke setName:@"Coke"];
+        [products addObject:coke];
+        Product *milk = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
+        [milk setName:@"Milk"];
+        [products addObject:milk];
+        Product *eggs = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
+        [eggs setName:@"Eggs"];
+        [products addObject:eggs];
+        Product *bread = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
+        [bread setName:@"Bread"];
+        [products addObject:bread];
+        
+        ShoppingList *list = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingList" inManagedObjectContext:self.managedObjectContext];
+        [list setName:@"Example list"];
+        [list setDate:[NSDate date]];
+        
+        int i = 1;
+        for (Product *p in products) {
+            ShoppingItem *item = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingItem" inManagedObjectContext:self.managedObjectContext];
+            [item setProduct:p];
+            [item setInList:list];
+            [item setQuantity:[NSNumber numberWithInt:i]];
+            i++;
+        }
+
+        NSError *error;
+        if (![self.managedObjectContext save:&error]) {
+            NSLog(@"Error saving context: %@", [error localizedDescription]);
+        } else {
+            [ud setBool:YES forKey:@"ShoppingListUserDefaultsExampleData"];
+        }
+    }
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application

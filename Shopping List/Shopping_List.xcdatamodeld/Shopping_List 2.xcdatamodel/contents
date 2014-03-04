@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3400" systemVersion="13B42" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Product" representedClassName="Product" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="inItem" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ShoppingItem" inverseName="product" inverseEntity="ShoppingItem" syncable="YES"/>
+    </entity>
+    <entity name="ShoppingItem" representedClassName="ShoppingItem" syncable="YES">
+        <attribute name="bought" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="quantity" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <relationship name="inList" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ShoppingList" inverseName="products" inverseEntity="ShoppingList" syncable="YES"/>
+        <relationship name="product" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Product" inverseName="inItem" inverseEntity="Product" syncable="YES"/>
+    </entity>
+    <entity name="ShoppingList" representedClassName="ShoppingList" syncable="YES">
+        <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="products" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ShoppingItem" inverseName="inList" inverseEntity="ShoppingItem" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Product" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="ShoppingItem" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="ShoppingList" positionX="0" positionY="0" width="0" height="0"/>
+    </elements>
+</model>
