@@ -20,6 +20,7 @@
 		A38E64B118C612EB001AAD50 /* Circle-Arrow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A38E64A618C612EB001AAD50 /* Circle-Arrow@2x.png */; };
 		A38E64B218C612EB001AAD50 /* MOOPullGesture.strings in Resources */ = {isa = PBXBuildFile; fileRef = A38E64A718C612EB001AAD50 /* MOOPullGesture.strings */; };
 		A38E64B418C6130D001AAD50 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A38E64B318C6130D001AAD50 /* QuartzCore.framework */; };
+		A3AA0BE618C67BD00003DBB0 /* MCSwipeTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A3AA0BE518C67BD00003DBB0 /* MCSwipeTableViewCell.m */; };
 		A3D0874418A3DC230087FF64 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3D0874318A3DC230087FF64 /* Foundation.framework */; };
 		A3D0874618A3DC230087FF64 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3D0874518A3DC230087FF64 /* CoreGraphics.framework */; };
 		A3D0874818A3DC230087FF64 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3D0874718A3DC230087FF64 /* UIKit.framework */; };
@@ -78,6 +79,9 @@
 		A38E64A918C612EB001AAD50 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/MOOPullGesture.strings; sourceTree = "<group>"; };
 		A38E64AA18C612EB001AAD50 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/MOOPullGesture.strings; sourceTree = "<group>"; };
 		A38E64B318C6130D001AAD50 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		A38E64B518C629E6001AAD50 /* Shopping_List 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Shopping_List 3.xcdatamodel"; sourceTree = "<group>"; };
+		A3AA0BE418C67BD00003DBB0 /* MCSwipeTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MCSwipeTableViewCell.h; sourceTree = "<group>"; };
+		A3AA0BE518C67BD00003DBB0 /* MCSwipeTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MCSwipeTableViewCell.m; sourceTree = "<group>"; };
 		A3D0874018A3DC230087FF64 /* Shopping List.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Shopping List.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3D0874318A3DC230087FF64 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A3D0874518A3DC230087FF64 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -164,9 +168,19 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		A3AA0BE318C67BD00003DBB0 /* MCSwipeTableViewCell */ = {
+			isa = PBXGroup;
+			children = (
+				A3AA0BE418C67BD00003DBB0 /* MCSwipeTableViewCell.h */,
+				A3AA0BE518C67BD00003DBB0 /* MCSwipeTableViewCell.m */,
+			);
+			path = MCSwipeTableViewCell;
+			sourceTree = "<group>";
+		};
 		A3D0873718A3DC230087FF64 = {
 			isa = PBXGroup;
 			children = (
+				A3AA0BE318C67BD00003DBB0 /* MCSwipeTableViewCell */,
 				A38E649918C612EB001AAD50 /* MOOPullGesture */,
 				A3EE14EA18B1587400B5BB6D /* cart@2x.png */,
 				A3EE14EB18B1587400B5BB6D /* product@2x.png */,
@@ -361,6 +375,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A38E64AB18C612EB001AAD50 /* MOOCreateView.m in Sources */,
+				A3AA0BE618C67BD00003DBB0 /* MCSwipeTableViewCell.m in Sources */,
 				A3D0875618A3DC240087FF64 /* AppDelegate.m in Sources */,
 				A3E4C45A18A8620D00815144 /* ListViewController.m in Sources */,
 				A36FA95318A40375002DCF8C /* ShoppingListsViewController.m in Sources */,
@@ -601,10 +616,11 @@
 		A3D0878318A3ECD50087FF64 /* Shopping_List.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				A38E64B518C629E6001AAD50 /* Shopping_List 3.xcdatamodel */,
 				A3D0878418A3ECD50087FF64 /* Shopping_List 2.xcdatamodel */,
 				A3D0878518A3ECD50087FF64 /* Shopping_List.xcdatamodel */,
 			);
-			currentVersion = A3D0878418A3ECD50087FF64 /* Shopping_List 2.xcdatamodel */;
+			currentVersion = A38E64B518C629E6001AAD50 /* Shopping_List 3.xcdatamodel */;
 			path = Shopping_List.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

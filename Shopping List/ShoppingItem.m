@@ -17,5 +17,6 @@
 @dynamic quantity;
 @dynamic product;
 @dynamic inList;
+@dynamic date;
 
 @end

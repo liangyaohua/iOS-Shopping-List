@@ -6,6 +6,7 @@
     </entity>
     <entity name="ShoppingItem" representedClassName="ShoppingItem" syncable="YES">
         <attribute name="bought" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="quantity" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <relationship name="inList" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ShoppingList" inverseName="products" inverseEntity="ShoppingList" syncable="YES"/>
         <relationship name="product" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Product" inverseName="inItem" inverseEntity="Product" syncable="YES"/>

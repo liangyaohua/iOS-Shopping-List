@@ -13,6 +13,7 @@
 
 #import "MOOPullGestureRecognizer.h"
 #import "MOOCreateView.h"
+#import "MCSwipeTableViewCell.h"
 
 @interface ListViewController ()
 
@@ -27,6 +28,8 @@
         self.list = list;
         self.lists = lists;
         self.managedObjectContext = context;
+        self.items = [[list.products allObjects] mutableCopy];
+        
         self.title = list.name;
         self.titleButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
         [self.titleButton setTitle:list.name forState:UIControlStateNormal];
@@ -35,13 +38,17 @@
         self.navigationItem.titleView = self.titleButton;
         
         self.tableView.delegate = self;
+        self.tableView.rowHeight = 50;
         
         [self renderEmptyView];
         
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(editButtonResponder:)];
         
-        if (![self.list.products count]) {
+        if (![self.items count]) {
             self.view = self.emptyView;
+        } else {
+            NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
+            [self.items sortUsingDescriptors:@[sortDescriptor]];
         }
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProductList:) name:@"ProductListDidChangeNotification" object:nil];
@@ -149,10 +156,13 @@
 
 - (void)updateProductList:(NSNotification *)notification
 {
+    self.items = [[self.list.products allObjects] mutableCopy];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
+    [self.items sortUsingDescriptors:@[sortDescriptor]];
     [self.tableView reloadData];
     [self.titleButton setTitle:self.list.name forState:UIControlStateNormal];
     
-    if (![self.list.products count]) {
+    if (![self.items count]) {
         self.view = self.emptyView;
     } else {
         self.view = self.tableView;
@@ -164,7 +174,7 @@
     [super viewDidLoad];
     
     // Add pull gesture recognizer
-    MOOPullGestureRecognizer *recognizer = [[MOOPullGestureRecognizer alloc] initWithTarget:self action:@selector(handleGesture:)];
+    recognizer = [[MOOPullGestureRecognizer alloc] initWithTarget:self action:@selector(handleGesture:)];
     
     // Create cell
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
@@ -180,10 +190,10 @@
         switch (state) {
             case MOOPullActive:
             case MOOPullTriggered:
-                cell.textLabel.text = NSLocalizedStringFromTable(@"Release to create item\u2026", @"MOOPullGesture", @"Release to create item");
+                cell.textLabel.text = @"Release to add item";
                 break;
             case MOOPullIdle:
-                cell.textLabel.text = NSLocalizedStringFromTable(@"Pull to create item\u2026", @"MOOPullGesture", @"Pull to create item");
+                cell.textLabel.text = @"Pull to add item";
                 break;
                 
         }
@@ -204,29 +214,94 @@
 
 - (void)_pulledToCreate:(UIGestureRecognizer<MOOPullGestureRecognizer> *)pullGestureRecognizer;
 {
-//    self.lists.numberOfRows++;
+    
     CGPoint contentOffset = self.tableView.contentOffset;
     contentOffset.y -= CGRectGetMinY(pullGestureRecognizer.triggerView.frame);
-    [self.tableView reloadData];
+    
     self.tableView.contentOffset = contentOffset;
-    NSLog(@"Added item");
+    NSLog(@"New offset: %f", contentOffset.y);
+    
+    ShoppingItem* newItem = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingItem" inManagedObjectContext:self.managedObjectContext];
+    [newItem setProduct:nil];
+    [newItem setQuantity:[NSNumber numberWithInt:1]];
+    [newItem setInList:self.list];
+    [newItem setDate:[NSDate date]];
+    
+    [self.items addObject:newItem];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
+    [self.items sortUsingDescriptors:@[sortDescriptor]];
 
-//    NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
-//    [self.tableView insertRowsAtIndexPaths:@[newIndexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+    NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
+    [self.tableView insertRowsAtIndexPaths:@[newIndexPath] withRowAnimation:UITableViewRowAnimationLeft];
+    editingIndexPath = newIndexPath;
+    
+    UITableViewCell* cell = [self.tableView cellForRowAtIndexPath:newIndexPath];
+    
+	CGRect bounds = [cell.contentView bounds];
+	CGRect rect = CGRectInset(bounds, 20.0, 10.0);
+    UITextField* tf = [[UITextField alloc] initWithFrame:rect];
+    
+    [tf setPlaceholder:@"Product name"];
+    [tf setDelegate:self];
+    [cell.contentView addSubview:tf];
+    [tf becomeFirstResponder];
+    
+    [self.tableView removeGestureRecognizer:recognizer];
+    
+    NSLog(@"Added item");
 }
 
 #pragma mark - UIScrollViewDelegate methods
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView;
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if (scrollView.pullGestureRecognizer)
         [scrollView.pullGestureRecognizer scrollViewDidScroll:scrollView];
 }
 
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView;
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     if (scrollView.pullGestureRecognizer)
         [scrollView.pullGestureRecognizer resetPullState];
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    NSString* txt = textField.text;
+    ShoppingItem* editingItem = [self.items objectAtIndex:[editingIndexPath row]];
+
+    if ([txt length]) {
+        Product* newProduct = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
+        [newProduct setName:txt];
+        [editingItem setProduct:newProduct];
+        
+        [textField removeFromSuperview];
+        [textField resignFirstResponder];
+        
+        [self.tableView reloadRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+        
+        NSError *error;
+        if (![self.managedObjectContext save:&error]) {
+            NSLog(@"Error saving context: %@", [error localizedDescription]);
+            [self.managedObjectContext deleteObject:editingItem];
+            [self.items removeObject:editingItem];
+            [self.tableView deleteRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationTop];
+        } else {
+//            [[NSNotificationCenter defaultCenter] postNotificationName:@"ShoppingListDidChangeNotification" object:self];
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"ProductListDidChangeNotification" object:self];
+        }
+        
+    } else {
+        NSLog(@"Text field empty");
+        [self.managedObjectContext deleteObject:editingItem];
+        [self.items removeObject:editingItem];
+        [self.tableView deleteRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationTop];
+    }
+    
+    editingIndexPath = nil;
+    [self.tableView addGestureRecognizer:recognizer];
+    [self.tableView.pullGestureRecognizer resetPullState];
+    return YES;
 }
 
 - (IBAction)editButtonResponder:(id)sender
@@ -252,7 +327,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return [self.list.products count];
+    return [self.items count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -262,7 +337,7 @@
     
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
 
-    ShoppingItem *item = [[self.list.products allObjects] objectAtIndex:[indexPath row]] ;
+    ShoppingItem *item = [self.items objectAtIndex:[indexPath row]] ;
     
     [cell.textLabel setText:item.product.name];
     if ([item.quantity intValue] > 1)
@@ -283,7 +358,7 @@
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    ShoppingItem *item = [[self.list.products allObjects] objectAtIndex:[indexPath row]];
+    ShoppingItem *item = [self.items objectAtIndex:[indexPath row]];
     NSString* markPurchasedTitle = ([item.bought boolValue]) ? @"Unmark as purchased" : @"Mark as purchased";
     
     editingIndexPath = indexPath;
@@ -300,7 +375,7 @@
 - (void)actionSheet:(UIActionSheet *)popup clickedButtonAtIndex:(NSInteger)buttonIndex {
     switch (popup.tag) {
         case 1: {
-            ShoppingItem *editingItem = [[self.list.products allObjects] objectAtIndex:[editingIndexPath row]];
+            ShoppingItem *editingItem = [self.items objectAtIndex:[editingIndexPath row]];
             switch (buttonIndex) {
                 case 0: {
                     // delete
