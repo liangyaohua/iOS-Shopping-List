@@ -74,11 +74,16 @@
     return self;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+
 - (id)initWithFrame:(CGRect)frame;
 {
     NSString *reason = [NSString stringWithFormat:@"Sent %@ to %@. Use %@ or %@ instead.", NSStringFromSelector(_cmd), NSStringFromClass([self class]), NSStringFromSelector(@selector(init)), NSStringFromSelector(@selector(initWithCellClass:style:))];
     @throw([NSException exceptionWithName:NSInternalInconsistencyException reason:reason userInfo:nil]);
 }
+
+#pragma clang diagnostic pop
 
 - (void)dealloc;
 {

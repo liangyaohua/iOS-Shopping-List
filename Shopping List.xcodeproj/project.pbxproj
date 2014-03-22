@@ -7,9 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A36FA94A18A4026E002DCF8C /* Product.m in Sources */ = {isa = PBXBuildFile; fileRef = A36FA94918A4026E002DCF8C /* Product.m */; };
-		A36FA94D18A4026F002DCF8C /* ShoppingItem.m in Sources */ = {isa = PBXBuildFile; fileRef = A36FA94C18A4026F002DCF8C /* ShoppingItem.m */; };
-		A36FA95018A4026F002DCF8C /* ShoppingList.m in Sources */ = {isa = PBXBuildFile; fileRef = A36FA94F18A4026F002DCF8C /* ShoppingList.m */; };
+		A35A685F18DA56D800303070 /* PreferencesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A35A685E18DA56D800303070 /* PreferencesViewController.m */; };
+		A35A686218DB372600303070 /* TripViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A35A686118DB372600303070 /* TripViewController.m */; };
 		A36FA95318A40375002DCF8C /* ShoppingListsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A36FA95218A40375002DCF8C /* ShoppingListsViewController.m */; };
 		A38E64AB18C612EB001AAD50 /* MOOCreateView.m in Sources */ = {isa = PBXBuildFile; fileRef = A38E649B18C612EB001AAD50 /* MOOCreateView.m */; };
 		A38E64AC18C612EB001AAD50 /* MOOPullGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = A38E649D18C612EB001AAD50 /* MOOPullGestureRecognizer.m */; };
@@ -21,6 +20,21 @@
 		A38E64B218C612EB001AAD50 /* MOOPullGesture.strings in Resources */ = {isa = PBXBuildFile; fileRef = A38E64A718C612EB001AAD50 /* MOOPullGesture.strings */; };
 		A38E64B418C6130D001AAD50 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A38E64B318C6130D001AAD50 /* QuartzCore.framework */; };
 		A3AA0BE618C67BD00003DBB0 /* MCSwipeTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A3AA0BE518C67BD00003DBB0 /* MCSwipeTableViewCell.m */; };
+		A3AA0BE918C67D5E0003DBB0 /* check.png in Resources */ = {isa = PBXBuildFile; fileRef = A3AA0BE718C67D5E0003DBB0 /* check.png */; };
+		A3AA0BEA18C67D5E0003DBB0 /* check@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A3AA0BE818C67D5E0003DBB0 /* check@2x.png */; };
+		A3AA0BED18C6893D0003DBB0 /* cross.png in Resources */ = {isa = PBXBuildFile; fileRef = A3AA0BEB18C6893D0003DBB0 /* cross.png */; };
+		A3AA0BEE18C6893D0003DBB0 /* cross@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A3AA0BEC18C6893D0003DBB0 /* cross@2x.png */; };
+		A3AA0BF118C7861B0003DBB0 /* addToCart.png in Resources */ = {isa = PBXBuildFile; fileRef = A3AA0BEF18C7861B0003DBB0 /* addToCart.png */; };
+		A3AA0BF218C7861B0003DBB0 /* addToCart@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A3AA0BF018C7861B0003DBB0 /* addToCart@2x.png */; };
+		A3AA0BF518C786E60003DBB0 /* removeFromCart.png in Resources */ = {isa = PBXBuildFile; fileRef = A3AA0BF318C786E60003DBB0 /* removeFromCart.png */; };
+		A3AA0BF618C786E60003DBB0 /* removeFromCart@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A3AA0BF418C786E60003DBB0 /* removeFromCart@2x.png */; };
+		A3AA0BF918C790F30003DBB0 /* ProductAutocompleteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A3AA0BF818C790F30003DBB0 /* ProductAutocompleteViewController.m */; };
+		A3B91FC018DDC9BD006308E3 /* ShoppingItem.m in Sources */ = {isa = PBXBuildFile; fileRef = A3B91FBF18DDC9BD006308E3 /* ShoppingItem.m */; };
+		A3B91FC318DDC9BD006308E3 /* ShoppingList.m in Sources */ = {isa = PBXBuildFile; fileRef = A3B91FC218DDC9BD006308E3 /* ShoppingList.m */; };
+		A3B91FC618DDC9BD006308E3 /* ShoppingTrip.m in Sources */ = {isa = PBXBuildFile; fileRef = A3B91FC518DDC9BD006308E3 /* ShoppingTrip.m */; };
+		A3B91FC918DDC9BE006308E3 /* ShoppingTripItem.m in Sources */ = {isa = PBXBuildFile; fileRef = A3B91FC818DDC9BE006308E3 /* ShoppingTripItem.m */; };
+		A3B91FCC18DDC9BE006308E3 /* Product.m in Sources */ = {isa = PBXBuildFile; fileRef = A3B91FCB18DDC9BE006308E3 /* Product.m */; };
+		A3B91FCF18DE1E33006308E3 /* PurchaseItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = A3B91FCE18DE1E33006308E3 /* PurchaseItemView.m */; };
 		A3D0874418A3DC230087FF64 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3D0874318A3DC230087FF64 /* Foundation.framework */; };
 		A3D0874618A3DC230087FF64 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3D0874518A3DC230087FF64 /* CoreGraphics.framework */; };
 		A3D0874818A3DC230087FF64 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3D0874718A3DC230087FF64 /* UIKit.framework */; };
@@ -55,12 +69,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		A36FA94818A4026E002DCF8C /* Product.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Product.h; sourceTree = "<group>"; };
-		A36FA94918A4026E002DCF8C /* Product.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Product.m; sourceTree = "<group>"; };
-		A36FA94B18A4026F002DCF8C /* ShoppingItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShoppingItem.h; sourceTree = "<group>"; };
-		A36FA94C18A4026F002DCF8C /* ShoppingItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShoppingItem.m; sourceTree = "<group>"; };
-		A36FA94E18A4026F002DCF8C /* ShoppingList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShoppingList.h; sourceTree = "<group>"; };
-		A36FA94F18A4026F002DCF8C /* ShoppingList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShoppingList.m; sourceTree = "<group>"; };
+		A35A685D18DA56D800303070 /* PreferencesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesViewController.h; sourceTree = "<group>"; };
+		A35A685E18DA56D800303070 /* PreferencesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesViewController.m; sourceTree = "<group>"; };
+		A35A686018DB372600303070 /* TripViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TripViewController.h; sourceTree = "<group>"; };
+		A35A686118DB372600303070 /* TripViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TripViewController.m; sourceTree = "<group>"; };
 		A36FA95118A40375002DCF8C /* ShoppingListsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShoppingListsViewController.h; sourceTree = "<group>"; };
 		A36FA95218A40375002DCF8C /* ShoppingListsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShoppingListsViewController.m; sourceTree = "<group>"; };
 		A38E649A18C612EB001AAD50 /* MOOCreateView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MOOCreateView.h; sourceTree = "<group>"; };
@@ -82,6 +94,28 @@
 		A38E64B518C629E6001AAD50 /* Shopping_List 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Shopping_List 3.xcdatamodel"; sourceTree = "<group>"; };
 		A3AA0BE418C67BD00003DBB0 /* MCSwipeTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MCSwipeTableViewCell.h; sourceTree = "<group>"; };
 		A3AA0BE518C67BD00003DBB0 /* MCSwipeTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MCSwipeTableViewCell.m; sourceTree = "<group>"; };
+		A3AA0BE718C67D5E0003DBB0 /* check.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = check.png; sourceTree = "<group>"; };
+		A3AA0BE818C67D5E0003DBB0 /* check@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "check@2x.png"; sourceTree = "<group>"; };
+		A3AA0BEB18C6893D0003DBB0 /* cross.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cross.png; sourceTree = "<group>"; };
+		A3AA0BEC18C6893D0003DBB0 /* cross@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cross@2x.png"; sourceTree = "<group>"; };
+		A3AA0BEF18C7861B0003DBB0 /* addToCart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = addToCart.png; sourceTree = "<group>"; };
+		A3AA0BF018C7861B0003DBB0 /* addToCart@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "addToCart@2x.png"; sourceTree = "<group>"; };
+		A3AA0BF318C786E60003DBB0 /* removeFromCart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = removeFromCart.png; sourceTree = "<group>"; };
+		A3AA0BF418C786E60003DBB0 /* removeFromCart@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "removeFromCart@2x.png"; sourceTree = "<group>"; };
+		A3AA0BF718C790F30003DBB0 /* ProductAutocompleteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductAutocompleteViewController.h; sourceTree = "<group>"; };
+		A3AA0BF818C790F30003DBB0 /* ProductAutocompleteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductAutocompleteViewController.m; sourceTree = "<group>"; };
+		A3B91FBE18DDC9BD006308E3 /* ShoppingItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShoppingItem.h; sourceTree = "<group>"; };
+		A3B91FBF18DDC9BD006308E3 /* ShoppingItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShoppingItem.m; sourceTree = "<group>"; };
+		A3B91FC118DDC9BD006308E3 /* ShoppingList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShoppingList.h; sourceTree = "<group>"; };
+		A3B91FC218DDC9BD006308E3 /* ShoppingList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShoppingList.m; sourceTree = "<group>"; };
+		A3B91FC418DDC9BD006308E3 /* ShoppingTrip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShoppingTrip.h; sourceTree = "<group>"; };
+		A3B91FC518DDC9BD006308E3 /* ShoppingTrip.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShoppingTrip.m; sourceTree = "<group>"; };
+		A3B91FC718DDC9BE006308E3 /* ShoppingTripItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShoppingTripItem.h; sourceTree = "<group>"; };
+		A3B91FC818DDC9BE006308E3 /* ShoppingTripItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShoppingTripItem.m; sourceTree = "<group>"; };
+		A3B91FCA18DDC9BE006308E3 /* Product.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Product.h; sourceTree = "<group>"; };
+		A3B91FCB18DDC9BE006308E3 /* Product.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Product.m; sourceTree = "<group>"; };
+		A3B91FCD18DE1E33006308E3 /* PurchaseItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PurchaseItemView.h; sourceTree = "<group>"; };
+		A3B91FCE18DE1E33006308E3 /* PurchaseItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PurchaseItemView.m; sourceTree = "<group>"; };
 		A3D0874018A3DC230087FF64 /* Shopping List.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Shopping List.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3D0874318A3DC230087FF64 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A3D0874518A3DC230087FF64 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -180,6 +214,16 @@
 		A3D0873718A3DC230087FF64 = {
 			isa = PBXGroup;
 			children = (
+				A3B91FCD18DE1E33006308E3 /* PurchaseItemView.h */,
+				A3B91FCE18DE1E33006308E3 /* PurchaseItemView.m */,
+				A3AA0BE718C67D5E0003DBB0 /* check.png */,
+				A3AA0BE818C67D5E0003DBB0 /* check@2x.png */,
+				A3AA0BF318C786E60003DBB0 /* removeFromCart.png */,
+				A3AA0BF418C786E60003DBB0 /* removeFromCart@2x.png */,
+				A3AA0BEF18C7861B0003DBB0 /* addToCart.png */,
+				A3AA0BF018C7861B0003DBB0 /* addToCart@2x.png */,
+				A3AA0BEB18C6893D0003DBB0 /* cross.png */,
+				A3AA0BEC18C6893D0003DBB0 /* cross@2x.png */,
 				A3AA0BE318C67BD00003DBB0 /* MCSwipeTableViewCell */,
 				A38E649918C612EB001AAD50 /* MOOPullGesture */,
 				A3EE14EA18B1587400B5BB6D /* cart@2x.png */,
@@ -216,12 +260,16 @@
 		A3D0874B18A3DC230087FF64 /* Shopping List */ = {
 			isa = PBXGroup;
 			children = (
-				A36FA94E18A4026F002DCF8C /* ShoppingList.h */,
-				A36FA94F18A4026F002DCF8C /* ShoppingList.m */,
-				A36FA94B18A4026F002DCF8C /* ShoppingItem.h */,
-				A36FA94C18A4026F002DCF8C /* ShoppingItem.m */,
-				A36FA94818A4026E002DCF8C /* Product.h */,
-				A36FA94918A4026E002DCF8C /* Product.m */,
+				A3B91FCA18DDC9BE006308E3 /* Product.h */,
+				A3B91FCB18DDC9BE006308E3 /* Product.m */,
+				A3B91FC718DDC9BE006308E3 /* ShoppingTripItem.h */,
+				A3B91FC818DDC9BE006308E3 /* ShoppingTripItem.m */,
+				A3B91FC418DDC9BD006308E3 /* ShoppingTrip.h */,
+				A3B91FC518DDC9BD006308E3 /* ShoppingTrip.m */,
+				A3B91FC118DDC9BD006308E3 /* ShoppingList.h */,
+				A3B91FC218DDC9BD006308E3 /* ShoppingList.m */,
+				A3B91FBE18DDC9BD006308E3 /* ShoppingItem.h */,
+				A3B91FBF18DDC9BD006308E3 /* ShoppingItem.m */,
 				A3D0877818A3DE0C0087FF64 /* ProductListViewController.h */,
 				A3D0877918A3DE0C0087FF64 /* ProductListViewController.m */,
 				A36FA95118A40375002DCF8C /* ShoppingListsViewController.h */,
@@ -230,8 +278,14 @@
 				A3EE14EF18B259BC00B5BB6D /* SelectListViewController.m */,
 				A3E4C45318A840E800815144 /* SelectItemsViewController.h */,
 				A3E4C45418A840E800815144 /* SelectItemsViewController.m */,
+				A35A685D18DA56D800303070 /* PreferencesViewController.h */,
+				A35A685E18DA56D800303070 /* PreferencesViewController.m */,
 				A3E4C45818A8620D00815144 /* ListViewController.h */,
 				A3E4C45918A8620D00815144 /* ListViewController.m */,
+				A35A686018DB372600303070 /* TripViewController.h */,
+				A35A686118DB372600303070 /* TripViewController.m */,
+				A3AA0BF718C790F30003DBB0 /* ProductAutocompleteViewController.h */,
+				A3AA0BF818C790F30003DBB0 /* ProductAutocompleteViewController.m */,
 				A3D0878318A3ECD50087FF64 /* Shopping_List.xcdatamodeld */,
 				A3D0875418A3DC240087FF64 /* AppDelegate.h */,
 				A3D0875518A3DC240087FF64 /* AppDelegate.m */,
@@ -347,12 +401,20 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3AA0BF118C7861B0003DBB0 /* addToCart.png in Resources */,
+				A3AA0BF518C786E60003DBB0 /* removeFromCart.png in Resources */,
 				A3D0875018A3DC230087FF64 /* InfoPlist.strings in Resources */,
 				A38E64AE18C612EB001AAD50 /* Arrow-Bucket.png in Resources */,
 				A38E64B218C612EB001AAD50 /* MOOPullGesture.strings in Resources */,
+				A3AA0BF218C7861B0003DBB0 /* addToCart@2x.png in Resources */,
+				A3AA0BF618C786E60003DBB0 /* removeFromCart@2x.png in Resources */,
+				A3AA0BEE18C6893D0003DBB0 /* cross@2x.png in Resources */,
 				A38E64B118C612EB001AAD50 /* Circle-Arrow@2x.png in Resources */,
 				A38E64B018C612EB001AAD50 /* Circle-Arrow.png in Resources */,
 				A38E64AF18C612EB001AAD50 /* Arrow-Bucket@2x.png in Resources */,
+				A3AA0BED18C6893D0003DBB0 /* cross.png in Resources */,
+				A3AA0BEA18C67D5E0003DBB0 /* check@2x.png in Resources */,
+				A3AA0BE918C67D5E0003DBB0 /* check.png in Resources */,
 				A3D0875B18A3DC240087FF64 /* Images.xcassets in Resources */,
 				A3EE14ED18B1587400B5BB6D /* product@2x.png in Resources */,
 				A3EE14EC18B1587400B5BB6D /* cart@2x.png in Resources */,
@@ -374,20 +436,26 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3AA0BF918C790F30003DBB0 /* ProductAutocompleteViewController.m in Sources */,
 				A38E64AB18C612EB001AAD50 /* MOOCreateView.m in Sources */,
 				A3AA0BE618C67BD00003DBB0 /* MCSwipeTableViewCell.m in Sources */,
 				A3D0875618A3DC240087FF64 /* AppDelegate.m in Sources */,
+				A3B91FC018DDC9BD006308E3 /* ShoppingItem.m in Sources */,
+				A3B91FCC18DDC9BE006308E3 /* Product.m in Sources */,
 				A3E4C45A18A8620D00815144 /* ListViewController.m in Sources */,
 				A36FA95318A40375002DCF8C /* ShoppingListsViewController.m in Sources */,
-				A36FA94D18A4026F002DCF8C /* ShoppingItem.m in Sources */,
 				A3D0875218A3DC240087FF64 /* main.m in Sources */,
 				A3EE14F018B259BC00B5BB6D /* SelectListViewController.m in Sources */,
-				A36FA94A18A4026E002DCF8C /* Product.m in Sources */,
+				A3B91FC918DDC9BE006308E3 /* ShoppingTripItem.m in Sources */,
+				A35A686218DB372600303070 /* TripViewController.m in Sources */,
+				A3B91FCF18DE1E33006308E3 /* PurchaseItemView.m in Sources */,
 				A3D0877A18A3DE0D0087FF64 /* ProductListViewController.m in Sources */,
 				A3D0878618A3ECD50087FF64 /* Shopping_List.xcdatamodeld in Sources */,
+				A3B91FC318DDC9BD006308E3 /* ShoppingList.m in Sources */,
 				A38E64AD18C612EB001AAD50 /* MOORefreshView.m in Sources */,
-				A36FA95018A4026F002DCF8C /* ShoppingList.m in Sources */,
 				A3E4C45618A840E800815144 /* SelectItemsViewController.m in Sources */,
+				A3B91FC618DDC9BD006308E3 /* ShoppingTrip.m in Sources */,
+				A35A685F18DA56D800303070 /* PreferencesViewController.m in Sources */,
 				A38E64AC18C612EB001AAD50 /* MOOPullGestureRecognizer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

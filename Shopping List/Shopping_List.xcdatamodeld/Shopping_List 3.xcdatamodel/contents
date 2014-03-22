@@ -5,7 +5,7 @@
         <relationship name="inItem" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ShoppingItem" inverseName="product" inverseEntity="ShoppingItem" syncable="YES"/>
     </entity>
     <entity name="ShoppingItem" representedClassName="ShoppingItem" syncable="YES">
-        <attribute name="bought" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="bought" optional="YES" attributeType="Float" syncable="YES"/>
         <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="quantity" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <relationship name="inList" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ShoppingList" inverseName="products" inverseEntity="ShoppingList" syncable="YES"/>
@@ -15,10 +15,23 @@
         <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="products" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ShoppingItem" inverseName="inList" inverseEntity="ShoppingItem" syncable="YES"/>
+        <relationship name="trips" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ShoppingTrip" inverseName="list" inverseEntity="ShoppingTrip" syncable="YES"/>
+    </entity>
+    <entity name="ShoppingTrip" representedClassName="ShoppingTrip" syncable="YES">
+        <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
+        <relationship name="items" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ShoppingTripItem" inverseName="trip" inverseEntity="ShoppingTripItem" syncable="YES"/>
+        <relationship name="list" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ShoppingList" inverseName="trips" inverseEntity="ShoppingList" syncable="YES"/>
+    </entity>
+    <entity name="ShoppingTripItem" representedClassName="ShoppingTripItem" parentEntity="ShoppingItem" syncable="YES">
+        <attribute name="price" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="purchasedQuantity" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <relationship name="trip" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ShoppingTrip" inverseName="items" inverseEntity="ShoppingTrip" syncable="YES"/>
     </entity>
     <elements>
         <element name="Product" positionX="0" positionY="0" width="0" height="0"/>
         <element name="ShoppingItem" positionX="0" positionY="0" width="0" height="0"/>
         <element name="ShoppingList" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="ShoppingTrip" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="ShoppingTripItem" positionX="0" positionY="0" width="0" height="0"/>
     </elements>
 </model>

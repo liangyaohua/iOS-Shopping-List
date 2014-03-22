@@ -20,5 +20,6 @@
 @property NSManagedObjectContext *managedObjectContext;
 
 - (ShoppingListsViewController *)initWithSharedContext:(NSManagedObjectContext *)context;
+- (NSString *)timeIntervalToStringWithInterval:(NSTimeInterval)interval;
 
 @end

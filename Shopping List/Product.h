@@ -2,13 +2,14 @@
 //  Product.h
 //  Shopping List
 //
-//  Created by Mario Cecchi on 2/6/14.
+//  Created by Mario Cecchi on 3/22/14.
 //  Copyright (c) 2014 Mario Cecchi. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
+@class ShoppingItem;
 
 @interface Product : NSManagedObject
 
@@ -18,8 +19,8 @@
 
 @interface Product (CoreDataGeneratedAccessors)
 
-- (void)addInItemObject:(NSManagedObject *)value;
-- (void)removeInItemObject:(NSManagedObject *)value;
+- (void)addInItemObject:(ShoppingItem *)value;
+- (void)removeInItemObject:(ShoppingItem *)value;
 - (void)addInItem:(NSSet *)values;
 - (void)removeInItem:(NSSet *)values;
 

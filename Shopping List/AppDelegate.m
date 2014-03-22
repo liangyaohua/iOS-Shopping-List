@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import "ProductListViewController.h"
 #import "ShoppingListsViewController.h"
+#import "PreferencesViewController.h"
 #import "Product.h"
 #import "ShoppingList.h"
 #import "ShoppingItem.h"
@@ -31,16 +32,28 @@
     UINavigationController *shoppingListNavigationController = [[UINavigationController alloc] initWithRootViewController:shoppingListsViewController];
     shoppingListNavigationController.tabBarItem.image = [UIImage imageNamed:@"cart.png"];
     
+    PreferencesViewController *preferencesViewController = [[PreferencesViewController alloc] init];
+    UINavigationController *preferencesNavigationController = [[UINavigationController alloc] initWithRootViewController:preferencesViewController];
+    
     UITabBarController *tabBarController = [[UITabBarController alloc] init];
-    [tabBarController setViewControllers:@[shoppingListNavigationController,productListNavigationController]];
+    [tabBarController setViewControllers:@[shoppingListNavigationController,
+                                           productListNavigationController,
+                                           preferencesNavigationController]];
     
     UIColor *orange = [UIColor colorWithRed:1.0 green:0.51 blue:0.0 alpha:1.0];
     
     shoppingListNavigationController.navigationBar.barTintColor =
-    productListNavigationController.navigationBar.barTintColor = orange;    shoppingListNavigationController.navigationBar.tintColor =
-    productListNavigationController.navigationBar.tintColor = [UIColor whiteColor];
+    productListNavigationController.navigationBar.barTintColor =
+    preferencesNavigationController.navigationBar.barTintColor = orange;
+    shoppingListNavigationController.navigationBar.translucent =
+    productListNavigationController.navigationBar.translucent =
+    preferencesNavigationController.navigationBar.translucent = NO;
+    shoppingListNavigationController.navigationBar.tintColor =
+    productListNavigationController.navigationBar.tintColor =
+    preferencesNavigationController.navigationBar.tintColor = [UIColor whiteColor];
     [shoppingListNavigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor whiteColor]}];
     [productListNavigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor whiteColor]}];
+    [preferencesNavigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor whiteColor]}];
 
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:NO];
     

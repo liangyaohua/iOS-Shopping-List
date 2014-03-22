@@ -2,7 +2,7 @@
 //  ShoppingItem.m
 //  Shopping List
 //
-//  Created by Mario Cecchi on 2/6/14.
+//  Created by Mario Cecchi on 3/22/14.
 //  Copyright (c) 2014 Mario Cecchi. All rights reserved.
 //
 
@@ -14,9 +14,9 @@
 @implementation ShoppingItem
 
 @dynamic bought;
-@dynamic quantity;
-@dynamic product;
-@dynamic inList;
 @dynamic date;
+@dynamic quantity;
+@dynamic inList;
+@dynamic product;
 
 @end

@@ -10,10 +10,11 @@
 #import "SelectItemsViewController.h"
 #import "SelectListViewController.h"
 #import "ShoppingList.h"
+#import "MCSwipeTableViewCell.h"
 
 @class MOOPullGestureRecognizer;
 
-@interface ListViewController : UITableViewController <SelectListViewControllerDelegate,UIGestureRecognizerDelegate,UITextFieldDelegate,UIActionSheetDelegate,UITableViewDelegate> {
+@interface ListViewController : UITableViewController <SelectListViewControllerDelegate,UIGestureRecognizerDelegate,UITextFieldDelegate,UIActionSheetDelegate,UITableViewDelegate,MCSwipeTableViewCellDelegate> {
     UIAlertView *alert;
     NSIndexPath* editingIndexPath;
     MOOPullGestureRecognizer *recognizer;
@@ -24,6 +25,8 @@
 @property NSMutableArray* items;
 @property NSManagedObjectContext *managedObjectContext;
 @property UIView* emptyView;
+@property UIView* swipeHelpView;
+@property UILabel* swipeHelpViewLabel;
 @property UIButton* titleButton;
 
 - (id)initWithList:(ShoppingList *)list andSharedContext:(NSManagedObjectContext *)context andLists:(NSArray *)lists;

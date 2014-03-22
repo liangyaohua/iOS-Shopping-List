@@ -190,12 +190,11 @@
     
     [cell.textLabel setText:[list name]];
     NSString *detailText = ([list.products count] == 1) ? @"1 Item" : [NSString stringWithFormat:@"%lu Items", (unsigned long)[list.products count]];
-    detailText = [detailText stringByAppendingString:[NSString stringWithFormat:@" | %@", [dateFormatter stringFromDate:list.date]]];
+    NSString *timeText = [self timeIntervalToStringWithInterval:[list.date timeIntervalSinceNow]];
+    detailText = [detailText stringByAppendingString:[NSString stringWithFormat:@" | %@", timeText]];
     [cell.detailTextLabel setText:detailText];
-    cell.detailTextLabel.textColor = [UIColor darkGrayColor];
-//    NSLog(@"%@", [NSString stringWithFormat:@" | Created on %@", [dateFormatter stringFromDate:list.date]]);
     
-//    [cell setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
+    cell.detailTextLabel.textColor = [UIColor darkGrayColor];
     [cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
     
     return cell;
@@ -305,6 +304,42 @@
         default:
             break;
     }
+}
+
+- (NSString *)timeIntervalToStringWithInterval:(NSTimeInterval)interval
+{
+    NSString *retVal = @"At time of event";
+    if (interval == 0) return retVal;
+    
+    int second = 1;
+    int minute = second*60;
+    int hour = minute*60;
+    int day = hour*24;
+    // interval can be before (negative) or after (positive)
+    int num = abs(interval);
+    
+    NSString *beforeOrAfter = @"ago";
+    NSString *unit = @"day";
+    if (interval > 0) {
+        beforeOrAfter = @"after";
+    }
+    
+    if (num >= day) {
+        num /= day;
+        if (num > 1) unit = @"days";
+    } else if (num >= hour) {
+        num /= hour;
+        unit = (num > 1) ? @"hours" : @"hour";
+    } else if (num >= minute) {
+        num /= minute;
+        unit = (num > 1) ? @"minutes" : @"minute";
+    } else if (num >= second) {
+        num /= second;
+        unit = (num > 1) ? @"seconds" : @"second";
+        
+    }
+    
+    return [NSString stringWithFormat:@"%d %@ %@", num, unit, beforeOrAfter];
 }
 
 @end

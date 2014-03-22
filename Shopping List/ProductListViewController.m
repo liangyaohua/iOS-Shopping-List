@@ -38,7 +38,8 @@
     [fetchRequest setIncludesSubentities:NO];
     
     self.products = [[context executeFetchRequest:fetchRequest error:&error] mutableCopy];
-//    NSLog(@"loadProducts Fetched %lu products", (unsigned long)[self.products count]);
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
+    [self.products sortUsingDescriptors:@[sortDescriptor]];
 }
 
 - (void)addNewProduct:(id)sender
@@ -80,9 +81,12 @@
     return YES;
 }
 
-- (void)updateProductList:(NSNotification *)notification {
-    if (notification.object != self)
+- (void)updateProductList:(NSNotification *)notification
+{
+    if (notification.object != self) {
         [self loadProducts];
+        [self.tableView reloadData];
+    }
 }
 
 - (id)initWithStyle:(UITableViewStyle)style
