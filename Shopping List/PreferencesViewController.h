@@ -10,7 +10,9 @@
 
 @interface PreferencesViewController : UITableViewController {
     NSArray* prefs;
+    NSUserDefaults* ud;
 }
 
+@property NSManagedObjectContext* managedObjectContext;
 
 @end

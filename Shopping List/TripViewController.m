@@ -37,8 +37,12 @@
         
         self.title = trip.list.name;
         
+        self.tableView = [[UITableView alloc] initWithFrame:self.view.frame];
         self.tableView.delegate = self;
+        self.tableView.dataSource = self;
         self.tableView.rowHeight = 50;
+        self.tableView.autoresizingMask = AUTORESIZE_ALL;
+        [self.view addSubview:self.tableView];
         
         editingIndexPath = nil;
         
@@ -46,9 +50,10 @@
         [backgroundView setBackgroundColor:[UIColor colorWithRed:227.0 / 255.0 green:227.0 / 255.0 blue:227.0 / 255.0 alpha:1.0]];
         [self.tableView setBackgroundView:backgroundView];
         
-        blackView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].applicationFrame];
+        blackView = [[UIView alloc] initWithFrame:self.view.frame];
         blackView.backgroundColor = [UIColor blackColor];
         blackView.alpha = 0.0f;
+        blackView.autoresizingMask = AUTORESIZE_ALL;
         [self.view addSubview:blackView];
         [self.view bringSubviewToFront:blackView];
         
@@ -65,25 +70,34 @@
 {
     if (totalPriceView == nil) {
         totalPriceView = [[UIView alloc] init];
-        totalPriceView.frame = CGRectMake(0, 200, 200, 100);
-        totalPriceView.backgroundColor = [UIColor whiteColor];
+        int height = 50;
+        int y = self.view.frame.size.height - height;
+        NSLog(@"y = %d", y);
+        totalPriceView.frame = CGRectMake(0,
+                                          y,
+                                          self.view.frame.size.width,
+                                          height);
+        totalPriceView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
+        totalPriceView.backgroundColor = [UIColor colorWithWhite:0.0f alpha:0.8f];
+        
         
         totalLabel = [[UILabel alloc] init];
         totalLabel.text = @"Total:";
         totalLabel.font = [UIFont systemFontOfSize:13];
-        totalLabel.textColor = [UIColor darkGrayColor];
-        totalLabel.frame = CGRectMake(0, 0, 200, 20);
+        totalLabel.textColor = [UIColor lightTextColor];
+        totalLabel.frame = CGRectMake(5, 0, 50, height);
         [totalPriceView addSubview:totalLabel];
         
         totalPriceLabel = [[UILabel alloc] init];
-        totalPriceLabel.font = [UIFont systemFontOfSize:20];
-        totalPriceLabel.textColor = [UIColor blackColor];
-        totalPriceLabel.frame = CGRectMake(0, 25, 200, 50);
+        totalPriceLabel.font = [UIFont boldSystemFontOfSize:30];
+        totalPriceLabel.textAlignment = NSTextAlignmentRight;
+        totalPriceLabel.textColor = [UIColor whiteColor];
+        totalPriceLabel.frame = CGRectMake(5, 0, self.view.frame.size.width - 10, height);
         [totalPriceView addSubview:totalPriceLabel];
         
         [self updateTotalPriceLabel];
 
-        [self.view.superview addSubview:totalPriceView];
+        [self.view addSubview:totalPriceView];
         
         NSLog(@"TotalPriceView added to superview");
     }
@@ -125,13 +139,13 @@
         helpText.font = [UIFont systemFontOfSize:12];
         [helpView addSubview:helpText];
         
-        [self.view.superview addSubview:helpView];
+        [self.view addSubview:helpView];
         
         
     }
     
     int paddingY = 35;
-    int width = self.view.superview.frame.size.width;
+    int width = self.view.frame.size.width;
     int height = 50;
     int y = CGRectGetMaxY(self.view.frame) - height - paddingY - 15;
     
@@ -190,12 +204,7 @@
         modalView.layer.shadowRadius = 10.0f;
         modalView.layer.shadowOffset = CGSizeMake(0, 0);
         modalView.autoresizesSubviews = YES;
-        modalView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin |
-        UIViewAutoresizingFlexibleRightMargin |
-        UIViewAutoresizingFlexibleTopMargin |
-        UIViewAutoresizingFlexibleBottomMargin |
-        UIViewAutoresizingFlexibleWidth |
-        UIViewAutoresizingFlexibleHeight;
+        modalView.autoresizingMask = AUTORESIZE_ALL;
         modalView.alpha = 0.0f;
         
         prodLabel = [[UILabel alloc] init];
@@ -265,13 +274,12 @@
                                        action:@selector(dismissKeyboard)];
         
         [modalView addGestureRecognizer:tap];
-        [self.view.superview addSubview:modalView];
+        [self.view addSubview:modalView];
 
     }
     
-    CGRect screenSize = self.view.superview.frame;
-    //    modalView.frame = CGRectMake(screenSize.size.width/2, screenSize.size.height/2, 1, 1);
-    modalView.frame = CGRectMake(padding, padding*6, screenSize.size.width - 2*padding, screenSize.size.height - 2*6*padding);
+    CGRect screenSize = self.view.frame;
+    modalView.frame = CGRectMake(padding, padding*2, screenSize.size.width - 2*padding, screenSize.size.height - 2*4*padding);
     prodLabel.frame = CGRectMake(0, 5, screenSize.size.width - 2*padding, 50);
     prodLabel2.frame = CGRectMake(padding, 60, screenSize.size.width - 4*padding, 30);
     quantityTextfield.frame = CGRectMake(180, 60, 75, 30);
@@ -299,7 +307,7 @@
                         options: UIViewAnimationOptionCurveEaseOut
                      animations:^{
                          modalView.alpha = 1.0f;
-                         blackView.alpha = 0.8f;
+                         blackView.alpha = 0.5f;
                      }
                      completion:^(BOOL finished){
                      }];
@@ -310,7 +318,7 @@
 {
     ShoppingTripItem* item = [self.items objectAtIndex:[editingIndexPath row]];
     item.purchasedQuantity = [NSNumber numberWithInt:[purchasedQuantityTextfield.text intValue]];
-    item.bought = [NSNumber numberWithBool:YES];
+    item.bought = (item.purchasedQuantity > 0) ? [NSNumber numberWithBool:YES] : [NSNumber numberWithBool:NO];
     item.price = [NSNumber numberWithFloat:[priceTextField.text floatValue]];
     
     NSError* error;

@@ -53,9 +53,10 @@
 		A3D0878618A3ECD50087FF64 /* Shopping_List.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A3D0878318A3ECD50087FF64 /* Shopping_List.xcdatamodeld */; };
 		A3E4C45618A840E800815144 /* SelectItemsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A3E4C45418A840E800815144 /* SelectItemsViewController.m */; };
 		A3E4C45A18A8620D00815144 /* ListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A3E4C45918A8620D00815144 /* ListViewController.m */; };
-		A3EE14EC18B1587400B5BB6D /* cart@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A3EE14EA18B1587400B5BB6D /* cart@2x.png */; };
-		A3EE14ED18B1587400B5BB6D /* product@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A3EE14EB18B1587400B5BB6D /* product@2x.png */; };
 		A3EE14F018B259BC00B5BB6D /* SelectListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A3EE14EF18B259BC00B5BB6D /* SelectListViewController.m */; };
+		A3F1521318DE6F3B003BCDCD /* box@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A3F1521018DE6F3B003BCDCD /* box@2x.png */; };
+		A3F1521418DE6F3B003BCDCD /* cart@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A3F1521118DE6F3B003BCDCD /* cart@2x.png */; };
+		A3F1521518DE6F3B003BCDCD /* tools@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A3F1521218DE6F3B003BCDCD /* tools@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -141,10 +142,11 @@
 		A3E4C45418A840E800815144 /* SelectItemsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectItemsViewController.m; sourceTree = "<group>"; };
 		A3E4C45818A8620D00815144 /* ListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListViewController.h; sourceTree = "<group>"; };
 		A3E4C45918A8620D00815144 /* ListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListViewController.m; sourceTree = "<group>"; };
-		A3EE14EA18B1587400B5BB6D /* cart@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "cart@2x.png"; path = "Shopping List/cart@2x.png"; sourceTree = "<group>"; };
-		A3EE14EB18B1587400B5BB6D /* product@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "product@2x.png"; path = "Shopping List/product@2x.png"; sourceTree = "<group>"; };
 		A3EE14EE18B259BC00B5BB6D /* SelectListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectListViewController.h; sourceTree = "<group>"; };
 		A3EE14EF18B259BC00B5BB6D /* SelectListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectListViewController.m; sourceTree = "<group>"; };
+		A3F1521018DE6F3B003BCDCD /* box@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "box@2x.png"; sourceTree = "<group>"; };
+		A3F1521118DE6F3B003BCDCD /* cart@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cart@2x.png"; sourceTree = "<group>"; };
+		A3F1521218DE6F3B003BCDCD /* tools@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tools@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -214,6 +216,9 @@
 		A3D0873718A3DC230087FF64 = {
 			isa = PBXGroup;
 			children = (
+				A3F1521018DE6F3B003BCDCD /* box@2x.png */,
+				A3F1521118DE6F3B003BCDCD /* cart@2x.png */,
+				A3F1521218DE6F3B003BCDCD /* tools@2x.png */,
 				A3B91FCD18DE1E33006308E3 /* PurchaseItemView.h */,
 				A3B91FCE18DE1E33006308E3 /* PurchaseItemView.m */,
 				A3AA0BE718C67D5E0003DBB0 /* check.png */,
@@ -226,8 +231,6 @@
 				A3AA0BEC18C6893D0003DBB0 /* cross@2x.png */,
 				A3AA0BE318C67BD00003DBB0 /* MCSwipeTableViewCell */,
 				A38E649918C612EB001AAD50 /* MOOPullGesture */,
-				A3EE14EA18B1587400B5BB6D /* cart@2x.png */,
-				A3EE14EB18B1587400B5BB6D /* product@2x.png */,
 				A3D0874B18A3DC230087FF64 /* Shopping List */,
 				A3D0876818A3DC240087FF64 /* Shopping ListTests */,
 				A3D0874218A3DC230087FF64 /* Frameworks */,
@@ -401,6 +404,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3F1521318DE6F3B003BCDCD /* box@2x.png in Resources */,
 				A3AA0BF118C7861B0003DBB0 /* addToCart.png in Resources */,
 				A3AA0BF518C786E60003DBB0 /* removeFromCart.png in Resources */,
 				A3D0875018A3DC230087FF64 /* InfoPlist.strings in Resources */,
@@ -412,12 +416,12 @@
 				A38E64B118C612EB001AAD50 /* Circle-Arrow@2x.png in Resources */,
 				A38E64B018C612EB001AAD50 /* Circle-Arrow.png in Resources */,
 				A38E64AF18C612EB001AAD50 /* Arrow-Bucket@2x.png in Resources */,
+				A3F1521418DE6F3B003BCDCD /* cart@2x.png in Resources */,
 				A3AA0BED18C6893D0003DBB0 /* cross.png in Resources */,
+				A3F1521518DE6F3B003BCDCD /* tools@2x.png in Resources */,
 				A3AA0BEA18C67D5E0003DBB0 /* check@2x.png in Resources */,
 				A3AA0BE918C67D5E0003DBB0 /* check.png in Resources */,
 				A3D0875B18A3DC240087FF64 /* Images.xcassets in Resources */,
-				A3EE14ED18B1587400B5BB6D /* product@2x.png in Resources */,
-				A3EE14EC18B1587400B5BB6D /* cart@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -26,7 +26,7 @@
     
     ProductListViewController *productListViewController = [[ProductListViewController alloc] initWithSharedContext:self.managedObjectContext];
     UINavigationController *productListNavigationController = [[UINavigationController alloc] initWithRootViewController:productListViewController];
-    productListNavigationController.tabBarItem.image = [UIImage imageNamed:@"product.png"];
+    productListNavigationController.tabBarItem.image = [UIImage imageNamed:@"box.png"];
     
     ShoppingListsViewController *shoppingListsViewController = [[ShoppingListsViewController alloc] initWithSharedContext:self.managedObjectContext];
     UINavigationController *shoppingListNavigationController = [[UINavigationController alloc] initWithRootViewController:shoppingListsViewController];
@@ -34,6 +34,7 @@
     
     PreferencesViewController *preferencesViewController = [[PreferencesViewController alloc] init];
     UINavigationController *preferencesNavigationController = [[UINavigationController alloc] initWithRootViewController:preferencesViewController];
+    preferencesNavigationController.tabBarItem.image = [UIImage imageNamed:@"tools.png"];
     
     UITabBarController *tabBarController = [[UITabBarController alloc] init];
     [tabBarController setViewControllers:@[shoppingListNavigationController,

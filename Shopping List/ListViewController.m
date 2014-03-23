@@ -48,14 +48,14 @@
         [self renderEmptyView];
         
 //        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(editButtonResponder:)];
-        // TODO correct barbuttonitem
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemPlay target:self action:@selector(startShoppingTrip:)];
         
         if (![self.items count]) {
             self.view = self.emptyView;
         } else {
             NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
             [self.items sortUsingDescriptors:@[sortDescriptor]];
+            // TODO correct barbuttonitem
+            self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemPlay target:self action:@selector(startShoppingTrip:)];
         }
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProductList:) name:@"ProductListDidChangeNotification" object:nil];
@@ -300,8 +300,12 @@
     
     if (![self.items count]) {
         self.view = self.emptyView;
+        self.navigationItem.rightBarButtonItem = nil;
     } else {
         self.view = self.tableView;
+        
+        // TODO correct barbuttonitem
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemPlay target:self action:@selector(startShoppingTrip:)];
     }
 }
 

@@ -13,7 +13,7 @@
 #import "ShoppingTrip.h"
 #import "MCSwipeTableViewCell.h"
 
-@interface TripViewController : UITableViewController <UIGestureRecognizerDelegate,UITableViewDelegate,MCSwipeTableViewCellDelegate> {
+@interface TripViewController : UIViewController <UIGestureRecognizerDelegate,UITableViewDelegate, UITableViewDataSource,MCSwipeTableViewCellDelegate> {
     UIAlertView *alert;
     NSIndexPath* editingIndexPath;
     UIView* blackView;
@@ -35,6 +35,7 @@
 @property NSManagedObjectContext *managedObjectContext;
 @property UIView* swipeHelpView;
 @property UILabel* swipeHelpViewLabel;
+@property UITableView* tableView;
 
 @property ShoppingTrip* trip;
 @property NSArray* items;
