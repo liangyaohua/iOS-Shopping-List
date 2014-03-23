@@ -518,8 +518,6 @@
         attributeString = [[NSMutableAttributedString alloc] init];
     }
     
-//    UIView *purchaseView = nil;
-//    UIColor *purchaseColor = nil;
     cell.firstTrigger = 0.2;
     
     UIView *crossView = [self viewWithImageName:@"cross"];
@@ -534,33 +532,12 @@
     
     if ([item.quantity intValue] > 1)
         [cell.detailTextLabel setText:[NSString stringWithFormat:@"%dx", [item.quantity intValue]]];
-    
-//    
-//    if (![item.bought boolValue]) {
-////        [cell setAccessoryType:UITableViewCellAccessoryNone];
-//        cell.textLabel.alpha = 1.0;
-//        purchaseView = [self viewWithImageName:@"addToCart"];
-//        purchaseColor = [UIColor colorWithRed:85.0 / 255.0 green:213.0 / 255.0 blue:80.0 / 255.0 alpha:1.0];
-//    } else {
-////        [cell setAccessoryType:UITableViewCellAccessoryCheckmark];
-//        cell.textLabel.alpha = 0.3;
-//        purchaseView = [self viewWithImageName:@"removeFromCart"];
-//        purchaseColor = [UIColor colorWithRed:254.0 / 255.0 green:217.0 / 255.0 blue:56.0 / 255.0 alpha:1.0];
-//    
-//        
-//        [attributeString addAttribute:NSStrikethroughStyleAttributeName
-//                                value:@1
-//                                range:NSMakeRange(0, [attributeString length])];
-//    }
-//    
-    cell.textLabel.attributedText = attributeString;
+        cell.textLabel.attributedText = attributeString;
     
     UIView* changeQuantityView = [self viewWithImageName:@"db"];
     UIColor* changeQuantityColor = [UIColor colorWithRed:254.0 / 255.0 green:217.0 / 255.0 blue:56.0 / 255.0 alpha:1.0];
     
     [cell setSwipeGestureWithView:changeQuantityView color:changeQuantityColor mode:MCSwipeTableViewCellModeSwitch state:MCSwipeTableViewCellState1 completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode) {
-        // TODO
-        NSLog(@"Swiped to change quantity");
         [self editQuantityForPath:indexPath];
     }];
     
@@ -570,7 +547,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-//    [self renderSwipeHelpView];
+    [self renderSwipeHelpView];
 }
 
 - (void)editQuantityForPath:(NSIndexPath *)indexPath
