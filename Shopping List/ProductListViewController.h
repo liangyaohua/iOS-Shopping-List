@@ -8,9 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ProductListViewController : UITableViewController <UITextFieldDelegate> {
-    UIAlertView *alert;
-}
+@interface ProductListViewController : UITableViewController
 
 @property NSMutableArray *products;
 @property NSManagedObjectContext *managedObjectContext;

@@ -14,15 +14,23 @@
 
 @implementation SelectListViewController
 
-- (id)initWithLists:(NSArray *)lists andSharedContext:(NSManagedObjectContext *)context
+- (id)initWithLists:(NSArray *)lists andCurrentList:(ShoppingList *)currentList andSharedContext:(NSManagedObjectContext *)context;
 {
     self = [super init];
     
     if (self) {
-        self.lists = lists;
         self.managedObjectContext = context;
         
+        // List array includes all except currentList
+        NSMutableArray* otherLists = [[NSMutableArray alloc] init];
+        for (ShoppingList* list in lists) {
+            if (list != currentList)
+                [otherLists addObject:list];
+        }
+        self.lists = otherLists;
+        
         self.title = @"Select list to import";
+        self.tableView.rowHeight = 50;
         
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(close:)];
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];

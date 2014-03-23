@@ -9,11 +9,13 @@
 #import <UIKit/UIKit.h>
 
 @class ShoppingList;
+@class MOOPullGestureRecognizer;
 
 @interface ShoppingListsViewController : UITableViewController <UITextFieldDelegate,UIActionSheetDelegate,UIGestureRecognizerDelegate>
 {
     UIAlertView* alert;
-    NSIndexPath* editingIndexPath;    
+    NSIndexPath* editingIndexPath;
+    MOOPullGestureRecognizer *recognizer;
 }
 
 @property NSMutableArray *lists;

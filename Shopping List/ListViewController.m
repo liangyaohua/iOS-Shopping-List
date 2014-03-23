@@ -17,6 +17,9 @@
 #import "MOOPullGestureRecognizer.h"
 #import "MOOCreateView.h"
 
+#import "HTAutocompleteTextField.h"
+#import "ProductHTAutocompleteManager.h"
+
 #define TAG_NEW_ITEM 1
 #define TAG_EDIT_QUANTITY 2
 #define TAG_EDIT_LIST_TITLE 3
@@ -52,6 +55,8 @@
         [self.tableView setBackgroundView:backgroundView];
         [self renderEmptyView];
         
+        self.normalView = self.view;
+
         if (![self.items count]) {
             self.view = self.emptyView;
         } else {
@@ -64,8 +69,15 @@
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProductList:) name:@"ProductListDidChangeNotification" object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProductList:) name:@"ShoppingListDidChangeNotification" object:nil];
+        
+        autocompleteManager = [[ProductHTAutocompleteManager alloc] initWithSharedContext:self.managedObjectContext];
     }
     return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ShoppingListDidChangeNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ProductListDidChangeNotification" object:nil];
 }
 
 - (void)renderEmptyView
@@ -174,7 +186,6 @@
                      }];
     
     [self performSelector: @selector(hideSwipeHelpView) withObject: nil afterDelay: 5.0];
-//    NSLog(@"Showing help view");
 }
 
 - (void)hideSwipeHelpView
@@ -255,7 +266,7 @@
 
 - (IBAction)selectListToDuplicate:(id)sender
 {
-    SelectListViewController *selectListViewController = [[SelectListViewController alloc] initWithLists:self.lists andSharedContext:self.managedObjectContext];
+    SelectListViewController *selectListViewController = [[SelectListViewController alloc] initWithLists:self.lists andCurrentList:self.list andSharedContext:self.managedObjectContext];
     
     UINavigationController *nav2 = [[UINavigationController alloc] initWithRootViewController:selectListViewController];
     [selectListViewController setDelegate:self];
@@ -291,6 +302,7 @@
 
 - (void)updateProductList:(NSNotification *)notification
 {
+    NSLog(@"List received update");
     self.items = [[self.list.products allObjects] mutableCopy];
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
     [self.items sortUsingDescriptors:@[sortDescriptor]];
@@ -302,7 +314,7 @@
         self.view = self.emptyView;
         self.navigationItem.rightBarButtonItem = nil;
     } else {
-        self.view = self.tableView;
+        self.view = self.normalView;
         
         // TODO correct barbuttonitem
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemPlay target:self action:@selector(startShoppingTrip:)];
@@ -418,11 +430,13 @@
     
 	CGRect bounds = [newCell.contentView bounds];
 	CGRect rect = CGRectInset(bounds, 20.0, 10.0);
-    UITextField* tf = [[UITextField alloc] initWithFrame:rect];
-    
+    HTAutocompleteTextField* tf = [[HTAutocompleteTextField alloc] initWithFrame:rect];
+    tf.autocompleteDataSource = autocompleteManager;
+
     tf.placeholder = @"Product name";
     tf.delegate = self;
     tf.tag = TAG_NEW_ITEM;
+    
     [newCell.contentView addSubview:tf];
     [tf becomeFirstResponder];
     
@@ -476,13 +490,6 @@
 
     ShoppingItem *item = [self.items objectAtIndex:[indexPath row]];
     
-    NSMutableAttributedString *attributeString;
-    if (item.product != nil) {
-        attributeString = [[NSMutableAttributedString alloc] initWithString:item.product.name];
-    } else {
-        attributeString = [[NSMutableAttributedString alloc] init];
-    }
-    
     cell.firstTrigger = 0.2;
     
     UIView *crossView = [self viewWithImageName:@"cross"];
@@ -495,9 +502,13 @@
     }];
     
     
-    if ([item.quantity intValue] > 1)
+    cell.textLabel.text = item.product.name;
+    if ([item.quantity intValue] > 1) {
         cell.detailTextLabel.text = [NSString stringWithFormat:@"%dx", [item.quantity intValue]];
-        cell.textLabel.attributedText = attributeString;
+    } else {
+        cell.detailTextLabel.text = @"";
+    }
+    
     
     UIView* changeQuantityView = [self viewWithImageName:@"db"];
     UIColor* changeQuantityColor = [UIColor colorWithRed:254.0 / 255.0 green:217.0 / 255.0 blue:56.0 / 255.0 alpha:1.0];
@@ -535,7 +546,7 @@
 - (void)alertView:(UIAlertView *)alertView willDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     if (alertView.tag == TAG_EDIT_QUANTITY) {
-        ShoppingItem *editingItem = [[self.list.products allObjects] objectAtIndex:[editingIndexPath row]];
+        ShoppingItem *editingItem = [self.items objectAtIndex:[editingIndexPath row]];
         float newQuantity = [[[alertView textFieldAtIndex:0] text] floatValue];
         if (buttonIndex > 0 && newQuantity > 0) {
             editingItem.quantity = [NSNumber numberWithFloat:newQuantity];
@@ -592,7 +603,6 @@
         [scrollView.pullGestureRecognizer resetPullState];
 }
 
-// TODO add tag switch
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     NSError *error;
@@ -625,7 +635,7 @@
                 [editingItem setProduct:newProduct];
             }
             
-            [self.tableView reloadRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+            [self.tableView reloadRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationFade];
             
             if (![self.managedObjectContext save:&error]) {
                 NSLog(@"Error saving context: %@", [error localizedDescription]);

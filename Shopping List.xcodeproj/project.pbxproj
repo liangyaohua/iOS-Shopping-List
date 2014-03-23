@@ -59,6 +59,7 @@
 		A3F1521918DE79D3003BCDCD /* db@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A3F1521718DE79D3003BCDCD /* db@2x.png */; };
 		A3F1521F18DF41D0003BCDCD /* HTAutocompleteTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F1521C18DF41D0003BCDCD /* HTAutocompleteTextField.m */; };
 		A3F1522018DF41D0003BCDCD /* HTEmailAutocompleteTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F1521E18DF41D0003BCDCD /* HTEmailAutocompleteTextField.m */; };
+		A3F1522318DF4344003BCDCD /* ProductHTAutocompleteManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F1522218DF4344003BCDCD /* ProductHTAutocompleteManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -151,6 +152,8 @@
 		A3F1521C18DF41D0003BCDCD /* HTAutocompleteTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTAutocompleteTextField.m; sourceTree = "<group>"; };
 		A3F1521D18DF41D0003BCDCD /* HTEmailAutocompleteTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTEmailAutocompleteTextField.h; sourceTree = "<group>"; };
 		A3F1521E18DF41D0003BCDCD /* HTEmailAutocompleteTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTEmailAutocompleteTextField.m; sourceTree = "<group>"; };
+		A3F1522118DF4344003BCDCD /* ProductHTAutocompleteManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductHTAutocompleteManager.h; sourceTree = "<group>"; };
+		A3F1522218DF4344003BCDCD /* ProductHTAutocompleteManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductHTAutocompleteManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -290,6 +293,8 @@
 				A35A685E18DA56D800303070 /* PreferencesViewController.m */,
 				A3E4C45818A8620D00815144 /* ListViewController.h */,
 				A3E4C45918A8620D00815144 /* ListViewController.m */,
+				A3F1522118DF4344003BCDCD /* ProductHTAutocompleteManager.h */,
+				A3F1522218DF4344003BCDCD /* ProductHTAutocompleteManager.m */,
 				A35A686018DB372600303070 /* TripViewController.h */,
 				A35A686118DB372600303070 /* TripViewController.m */,
 				A3D0878318A3ECD50087FF64 /* Shopping_List.xcdatamodeld */,
@@ -461,6 +466,7 @@
 				A3D0875618A3DC240087FF64 /* AppDelegate.m in Sources */,
 				A3B91FC018DDC9BD006308E3 /* ShoppingItem.m in Sources */,
 				A3B91FCC18DDC9BE006308E3 /* Product.m in Sources */,
+				A3F1522318DF4344003BCDCD /* ProductHTAutocompleteManager.m in Sources */,
 				A3E4C45A18A8620D00815144 /* ListViewController.m in Sources */,
 				A36FA95318A40375002DCF8C /* ShoppingListsViewController.m in Sources */,
 				A3D0875218A3DC240087FF64 /* main.m in Sources */,

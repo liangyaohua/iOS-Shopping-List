@@ -13,17 +13,20 @@
 #import "MCSwipeTableViewCell.h"
 
 @class MOOPullGestureRecognizer;
+@class ProductHTAutocompleteManager;
 
 @interface ListViewController : UITableViewController <SelectListViewControllerDelegate,UIGestureRecognizerDelegate,UITextFieldDelegate,UIActionSheetDelegate,UITableViewDelegate,MCSwipeTableViewCellDelegate> {
     UIAlertView *alert;
     NSIndexPath* editingIndexPath;
     MOOPullGestureRecognizer *recognizer;
+    ProductHTAutocompleteManager* autocompleteManager;
 }
 
 @property NSArray *lists;
 @property ShoppingList* list;
 @property NSMutableArray* items;
 @property NSManagedObjectContext *managedObjectContext;
+@property UIView* normalView;
 @property UIView* emptyView;
 @property UIView* swipeHelpView;
 @property UILabel* swipeHelpViewLabel;

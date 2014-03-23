@@ -61,6 +61,12 @@
     return self;
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ShoppingListDidChangeNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ProductListDidChangeNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"SettingsDidChangeNotification" object:nil];
+}
+
 - (void)loadItems:(id)sender
 {
     NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];

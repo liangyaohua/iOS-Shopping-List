@@ -32,6 +32,11 @@
     return self;
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ShoppingListDidChangeNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ProductListDidChangeNotification" object:nil];
+}
+
 - (void)loadProducts
 {
     NSManagedObjectContext *context = [self managedObjectContext];
@@ -60,45 +65,6 @@
     [self.tableView reloadData];
 }
 
-- (void)addNewProduct:(id)sender
-{
-    alert = [[UIAlertView alloc] initWithTitle:@"New product" message:@"Enter a name for the product" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Add", nil];
-    alert.alertViewStyle = UIAlertViewStylePlainTextInput;
-    [[alert textFieldAtIndex:0] setDelegate:self];
-    [[alert textFieldAtIndex:0] setReturnKeyType:UIReturnKeyDone];
-    [[alert textFieldAtIndex:0] setSpellCheckingType:UITextSpellCheckingTypeYes];
-    [[alert textFieldAtIndex:0] setAutocapitalizationType:UITextAutocapitalizationTypeWords];
-    [alert show];
-}
-
-- (void)alertView:(UIAlertView *)alertView willDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-    NSString *name = [[alertView textFieldAtIndex:0] text];
-    
-    if (buttonIndex > 0 && [name length] > 0) {
-        Product *newProduct = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
-        [newProduct setName:name];
-        
-        NSError *error;
-        if (![self.managedObjectContext save:&error]) {
-            NSLog(@"Error saving context: %@", [error localizedDescription]);
-        } else {
-            [self.products addObject:newProduct];
-            
-            // Add row to table view
-            NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:([self.products count] - 1) inSection:0];
-            [self.tableView insertRowsAtIndexPaths:@[newIndexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-        }
-    }
-}
-
-- (BOOL)textFieldShouldReturn:(UITextField *)alertTextField
-{
-    [alertTextField resignFirstResponder];
-    [alert dismissWithClickedButtonIndex:1 animated:YES];
-    return YES;
-}
-
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -111,10 +77,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    self.navigationItem.RightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNewProduct:)];
-    
-//    self.navigationItem.leftBarButtonItem = self.editButtonItem;
 }
 
 - (void)didReceiveMemoryWarning
@@ -143,7 +105,7 @@
         Product *p = [self.products objectAtIndex:[indexPath row]];
         
         cell.textLabel.text = p.name;
-                
+        
         // Remove inset of iOS 7 separators.
         if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
             cell.separatorInset = UIEdgeInsetsZero;

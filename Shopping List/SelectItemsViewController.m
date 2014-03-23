@@ -29,8 +29,9 @@
         self.title = [NSString stringWithFormat:@"Select items on '%@'", list.name];
         
         self.tableView = [[UITableView alloc] init];
-        [self.tableView setDelegate:self];
-        [self.tableView setDataSource:self];
+        self.tableView.delegate = self;
+        self.tableView.dataSource = self;
+        self.tableView.rowHeight = 50;
         self.view = self.tableView;
         
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(close:)];
@@ -41,6 +42,10 @@
         
     }
     return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ProductListDidChangeNotification" object:nil];
 }
 
 - (void)loadProducts
@@ -85,7 +90,6 @@
                                               otherButtonTitles:nil];
         [alert show];
     } else {
-//        [self.delegate didUpdateList];
         [[NSNotificationCenter defaultCenter] postNotificationName:@"ShoppingListDidChangeNotification" object:self];
 
     }
@@ -96,12 +100,13 @@
 {
     alert = [[UIAlertView alloc] initWithTitle:@"New product" message:@"Enter a name for the product" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Add", nil];
     alert.alertViewStyle = UIAlertViewStylePlainTextInput;
-//    [self createInputAccessoryView];
-    [[alert textFieldAtIndex:0] setDelegate:self];
-    [[alert textFieldAtIndex:0] setReturnKeyType:UIReturnKeyDone];
-    [[alert textFieldAtIndex:0] setSpellCheckingType:UITextSpellCheckingTypeYes];
-    [[alert textFieldAtIndex:0] setAutocapitalizationType:UITextAutocapitalizationTypeWords];
-    [[alert textFieldAtIndex:0] setInputAccessoryView:self.inputAccessoryView];
+    UITextField* tf = [alert textFieldAtIndex:0];
+
+    [tf setDelegate:self];
+    [tf setReturnKeyType:UIReturnKeyDone];
+    [tf setSpellCheckingType:UITextSpellCheckingTypeYes];
+    [tf setAutocapitalizationType:UITextAutocapitalizationTypeWords];
+    [tf setInputAccessoryView:self.inputAccessoryView];
     [alert show];
 }
 
@@ -139,25 +144,8 @@
         }
     }
 }
-//
-//- (void)createInputAccessoryView
-//{
-//    if (!self.inputAccessoryView) {
-//        CGRect accessFrame = CGRectMake(10.0, 0.0, 768.0, 40.0);
-//        self.inputAccessoryView = [[UIView alloc] initWithFrame:accessFrame];
-//        self.inputAccessoryView.backgroundColor = [UIColor whiteColor];
-//        self.inputAccessoryView.alpha = 0.5;
-//        UIButton *compButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-//        compButton.frame = CGRectMake(10.0, 0.0, 100.0, 40.0);
-//        [compButton setTitle: @"Add amount" forState:UIControlStateNormal];
-//        [compButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-////        [compButton addTarget:self action:@selector(completeCurrentWord:)
-////             forControlEvents:UIControlEventTouchUpInside];
-//        [self.inputAccessoryView addSubview:compButton];
-//    }
-//}
 
-- (IBAction)close:(id)sender
+- (void)close:(id)sender
 {
     [self saveChanges];
     [self dismissViewControllerAnimated:YES completion:nil];

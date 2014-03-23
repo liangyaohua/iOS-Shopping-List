@@ -15,11 +15,11 @@
 
 @interface SelectListViewController : UITableViewController
 
-@property (nonatomic) UIView *inputAccessoryView;
-@property NSManagedObjectContext *managedObjectContext;
-@property NSArray *lists;
+@property (nonatomic) UIView* inputAccessoryView;
+@property NSManagedObjectContext* managedObjectContext;
+@property NSArray* lists;
 @property (weak) id<SelectListViewControllerDelegate> delegate;
 
-- (id)initWithLists:(NSArray *)lists andSharedContext:(NSManagedObjectContext *)context;
+- (id)initWithLists:(NSArray *)lists andCurrentList:(ShoppingList *)currentList andSharedContext:(NSManagedObjectContext *)context;
 
 @end

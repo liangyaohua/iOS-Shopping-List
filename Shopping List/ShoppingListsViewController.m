@@ -11,6 +11,13 @@
 #import "ListViewController.h"
 #import "ShoppingList.h"
 
+#import "MOOPullGestureRecognizer.h"
+#import "MOOCreateView.h"
+
+#define TAG_NEW_LIST 1
+#define TAG_RENAME_LIST 2
+#define TAG_CONFIRM_DELETE 3
+
 @interface ShoppingListsViewController ()
 
 @end
@@ -30,6 +37,11 @@
     return self;
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ShoppingListDidChangeNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ProductListDidChangeNotification" object:nil];
+}
+
 - (void)loadLists
 {
     NSManagedObjectContext *context = [self managedObjectContext];
@@ -46,83 +58,140 @@
 }
 
 - (void)listsDidChange:(NSNotification *)notification {
-    [self loadLists];
-    [self.tableView reloadData];
+    if (notification.object != self) {
+        [self loadLists];
+        [self.tableView reloadData];
+    }
 }
 
-- (void)addNewList:(id)sender
+- (void)deleteRowWithPrompt:(NSIndexPath *)indexPath
 {
-    alert = [[UIAlertView alloc] initWithTitle:@"New list" message:@"Enter a name for this shopping list." delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Save", nil];
-    alert.alertViewStyle = UIAlertViewStylePlainTextInput;
-    alert.tag = 1;
-    [[alert textFieldAtIndex:0] setDelegate:self];
-    [[alert textFieldAtIndex:0] setReturnKeyType:UIReturnKeyDone];
-    [[alert textFieldAtIndex:0] setSpellCheckingType:UITextSpellCheckingTypeYes];
-    [[alert textFieldAtIndex:0] setAutocapitalizationType:UITextAutocapitalizationTypeWords];
-    [[alert textFieldAtIndex:0] setTag:1];
+    editingIndexPath = indexPath;
+    ShoppingList* list = [self.lists objectAtIndex:[indexPath row]];
+    
+    NSString* msg = [NSString stringWithFormat:@"Are you sure your want to delete the list %@?", list.name];
+    
+    alert = [[UIAlertView alloc] initWithTitle:@"Delete?"
+                                       message:msg
+                                      delegate:self
+                             cancelButtonTitle:@"No"
+                             otherButtonTitles:@"Yes", nil];
+    alert.tag = TAG_CONFIRM_DELETE;
     [alert show];
 }
 
-- (BOOL)textFieldShouldReturn:(UITextField *)alertTextField
+- (void)deleteRow:(NSIndexPath *)indexPath
 {
-    [alertTextField resignFirstResponder];
-    [alert dismissWithClickedButtonIndex:1 animated:YES];
+    ShoppingList *l = [self.lists objectAtIndex:[indexPath row]];
+    [self.managedObjectContext deleteObject:l];
+    
+    NSError *error;
+    if (![self.managedObjectContext save:&error]) {
+        NSLog(@"Error saving context: %@", [error localizedDescription]);
+    } else {
+        [self.lists removeObjectAtIndex:[indexPath row]];
+        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"ShoppingListDidChangeNotification" object:self];
+    }
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    if (textField.tag == TAG_NEW_LIST) {
+        NSString* txt = textField.text;
+        ShoppingList* editingList = [self.lists objectAtIndex:[editingIndexPath row]];
+        [textField removeFromSuperview];
+        [textField resignFirstResponder];
+        
+        if ([txt length]) {
+            editingList.name = txt;
+            
+            [self.tableView reloadRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+            
+            NSError* error;
+            if (![self.managedObjectContext save:&error]) {
+                NSLog(@"Error saving context: %@", [error localizedDescription]);
+                [self.managedObjectContext deleteObject:editingList];
+                [self.lists removeObject:editingList];
+                [self.tableView deleteRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationTop];
+            }
+            
+        } else {
+            [self.managedObjectContext deleteObject:editingList];
+            [self.lists removeObject:editingList];
+            [self.tableView deleteRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationTop];
+        }
+        
+        editingIndexPath = nil;
+        [self.tableView addGestureRecognizer:recognizer];
+        [self.tableView.pullGestureRecognizer resetPullState];
+    } else {
+        [textField resignFirstResponder];
+        [alert dismissWithClickedButtonIndex:1 animated:YES];
+    }
+    
     return YES;
 }
 
 - (void)alertView:(UIAlertView *)alertView willDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    NSString *name = [[alertView textFieldAtIndex:0] text];
-    
-    // New list
-    if (alertView.tag == 1) {
-        if (buttonIndex > 0 && [name length] > 0) {
-            NSLog(@"Entered: %@", name);
-            
-            ShoppingList *list = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingList" inManagedObjectContext:self.managedObjectContext];
-            [list setName:name];
-            [list setDate:[NSDate date]];
-            
-            NSError *error;
-            if (![self.managedObjectContext save:&error]) {
-                NSLog(@"Error saving context: %@", [error localizedDescription]);
-            } else {
-                [self.lists addObject:list];
-                // Re-order array in order to add on top
-                NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
-                [self.lists sortUsingDescriptors:@[sortDescriptor]];
-                
-                // Add row to table view
-                NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
-                [self.tableView insertRowsAtIndexPaths:@[newIndexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-                
-                ListViewController *listViewController = [[ListViewController alloc] initWithList:list andSharedContext:self.managedObjectContext andLists:self.lists];
-                
-                UIBarButtonItem *newBackButton =
-                [[UIBarButtonItem alloc] initWithTitle:@"Lists"
-                                                 style:UIBarButtonItemStyleBordered
-                                                target:nil
-                                                action:nil];
-                [[self navigationItem] setBackBarButtonItem:newBackButton];
-                [self.navigationController pushViewController:listViewController animated:YES];
-            }
-        }
-    }
-    // Rename list
-    else if (alertView.tag == 2) {
+//    // New list
+//    if (alertView.tag == TAG_NEW_LIST) {
+//        NSString *name = [[alertView textFieldAtIndex:0] text];
+//        if (buttonIndex > 0 && [name length] > 0) {
+//            NSLog(@"Entered: %@", name);
+//            
+//            ShoppingList *list = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingList" inManagedObjectContext:self.managedObjectContext];
+//            [list setName:name];
+//            [list setDate:[NSDate date]];
+//            
+//            NSError *error;
+//            if (![self.managedObjectContext save:&error]) {
+//                NSLog(@"Error saving context: %@", [error localizedDescription]);
+//            } else {
+//                [self.lists addObject:list];
+//                // Re-order array in order to add on top
+//                NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
+//                [self.lists sortUsingDescriptors:@[sortDescriptor]];
+//                
+//                // Add row to table view
+//                NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
+//                [self.tableView insertRowsAtIndexPaths:@[newIndexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+//                
+//                ListViewController *listViewController = [[ListViewController alloc] initWithList:list andSharedContext:self.managedObjectContext andLists:self.lists];
+//                
+//                UIBarButtonItem *newBackButton =
+//                [[UIBarButtonItem alloc] initWithTitle:@"Lists"
+//                                                 style:UIBarButtonItemStyleBordered
+//                                                target:nil
+//                                                action:nil];
+//                [[self navigationItem] setBackBarButtonItem:newBackButton];
+//                [self.navigationController pushViewController:listViewController animated:YES];
+//            }
+//        }
+//    }
+//    else
+    if (alertView.tag == TAG_RENAME_LIST) {
         NSString *newName = [[alertView textFieldAtIndex:0] text];
         if (buttonIndex > 0 && [newName length] > 0) {
             ShoppingList* editingList = [self.lists objectAtIndex:[editingIndexPath row]];
             [editingList setName:newName];
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"ShoppingListDidChangeNotification" object:self];
-            editingIndexPath = nil;
-            
             NSError *error;
             if (![self.managedObjectContext save:&error]) {
                 NSLog(@"Error saving context: %@", [error localizedDescription]);
+            } else {
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"ShoppingListDidChangeNotification" object:self];
+                [self.tableView reloadRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationFade];
             }
+            editingIndexPath = nil;
         }
+    } else if (alertView.tag == TAG_CONFIRM_DELETE) {
+        if (buttonIndex > 0) {
+            [self deleteRow:editingIndexPath];
+        }
+        editingIndexPath = nil;
     }
+
 }
 
 - (void)displayProductSelectionViewOfList:(ShoppingList*)l
@@ -153,14 +222,39 @@
     lpgr.delegate = self;
     [self.tableView addGestureRecognizer:lpgr];
     
-    self.navigationItem.RightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNewList:)];
-//    self.navigationItem.leftBarButtonItem = self.editButtonItem;
+    // Add pull gesture recognizer
+    recognizer = [[MOOPullGestureRecognizer alloc] initWithTarget:self action:@selector(handleGesture:)];
+    
+    // Create cell
+    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+    cell.backgroundColor = self.tableView.backgroundColor; // UITableViewCell background color is transparent by default
+    cell.imageView.image = [UIImage imageNamed:@"Arrow-Bucket.png"];
+    
+    // Create create view
+    MOOCreateView *createView = [[MOOCreateView alloc] initWithCell:cell];
+    createView.configurationBlock = ^(MOOCreateView *view, UITableViewCell *cell, MOOPullState state){
+        if (![cell isKindOfClass:[UITableViewCell class]])
+            return;
+        
+        switch (state) {
+            case MOOPullActive:
+            case MOOPullTriggered:
+                cell.textLabel.text = @"Release to create list";
+                break;
+            case MOOPullIdle:
+                cell.textLabel.text = @"Pull to create list";
+                break;
+                
+        }
+    };
+    recognizer.triggerView = createView;
+    [self.tableView addGestureRecognizer:recognizer];
+
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 #pragma mark - Table view data source
@@ -188,14 +282,16 @@
     [dateFormatter setTimeStyle:NSDateFormatterNoStyle];
     [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
     
-    cell.textLabel.text = list.name;
-    cell.textLabel.font = [UIFont boldSystemFontOfSize:17];
-    NSString *detailText = ([list.products count] == 1) ? @"1 Item" : [NSString stringWithFormat:@"%lu Items", (unsigned long)[list.products count]];
-    NSString *timeText = [self timeIntervalToStringWithInterval:[list.date timeIntervalSinceNow]];
-    cell.detailTextLabel.text = [detailText stringByAppendingString:[NSString stringWithFormat:@" | %@", timeText]];
-    
-    cell.detailTextLabel.textColor = [UIColor darkGrayColor];
-    [cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
+    if (![list.name isEqualToString:@""]) {
+        cell.textLabel.text = list.name;
+        cell.textLabel.font = [UIFont boldSystemFontOfSize:17];
+        NSString *detailText = ([list.products count] == 1) ? @"1 Item" : [NSString stringWithFormat:@"%lu Items", (unsigned long)[list.products count]];
+        NSString *timeText = [self timeIntervalToStringWithInterval:[list.date timeIntervalSinceNow]];
+        cell.detailTextLabel.text = [detailText stringByAppendingString:[NSString stringWithFormat:@" | %@", timeText]];
+        
+        cell.detailTextLabel.textColor = [UIColor darkGrayColor];
+        [cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
+    }
     
     return cell;
 }
@@ -225,17 +321,7 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        ShoppingList *l = [self.lists objectAtIndex:[indexPath row]];
-        [self.managedObjectContext deleteObject:l];
-        
-        NSError *error;
-        if (![self.managedObjectContext save:&error]) {
-            NSLog(@"Error saving context: %@", [error localizedDescription]);
-        } else {
-            [self.lists removeObjectAtIndex:[indexPath row]];
-            [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"ShoppingListDidChangeNotification" object:self];
-        }
+        [self deleteRow:indexPath];
     }
 }
 
@@ -259,25 +345,14 @@
     }
 }
 
-- (void)actionSheet:(UIActionSheet *)popup clickedButtonAtIndex:(NSInteger)buttonIndex {
-    
+- (void)actionSheet:(UIActionSheet *)popup clickedButtonAtIndex:(NSInteger)buttonIndex
+{
     switch (popup.tag) {
         case 1: {
-            ShoppingList* editingList = [self.lists objectAtIndex:[editingIndexPath row]];
             switch (buttonIndex) {
                 case 0: {
                     // delete
-                    [self.managedObjectContext deleteObject:editingList];
-                    
-                    NSError *error;
-                    if (![self.managedObjectContext save:&error]) {
-                        NSLog(@"Error saving context: %@", [error localizedDescription]);
-                    } else {
-                        [self.lists removeObject:editingList];
-                        [self.tableView deleteRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-                    }
-                    
-                    editingIndexPath = nil;
+                    [self deleteRowWithPrompt:editingIndexPath];
                     break;
                 }
                 case 1:
@@ -285,18 +360,18 @@
                     
                     alert = [[UIAlertView alloc] initWithTitle:@"Rename list" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Save", nil];
                     alert.alertViewStyle = UIAlertViewStylePlainTextInput;
-                    alert.tag = 2;
+                    alert.tag = TAG_RENAME_LIST;
                     [[alert textFieldAtIndex:0] setDelegate:self];
                     [[alert textFieldAtIndex:0] setReturnKeyType:UIReturnKeyDone];
                     [[alert textFieldAtIndex:0] setSpellCheckingType:UITextSpellCheckingTypeYes];
                     [[alert textFieldAtIndex:0] setAutocapitalizationType:UITextAutocapitalizationTypeWords];
                     [[alert textFieldAtIndex:0] setText:[[self.lists objectAtIndex:[editingIndexPath row]] name]];
+                    [[alert textFieldAtIndex:0] setTag:TAG_RENAME_LIST];
                     [alert show];
 
                     break;
                 default:
                     // cancel, etc
-//                    NSLog(@"Index %lu, button %@", buttonIndex, [popup buttonTitleAtIndex:buttonIndex]);
                     editingIndexPath = nil;
                     break;
             }
@@ -305,6 +380,73 @@
         default:
             break;
     }
+}
+
+#pragma mark - MOOPullGestureRecognizer targets
+
+- (void)handleGesture:(UIGestureRecognizer *)gestureRecognizer;
+{
+    if (gestureRecognizer.state == UIGestureRecognizerStateRecognized) {
+        if ([gestureRecognizer conformsToProtocol:@protocol(MOOPullGestureRecognizer)])
+            [self _pulledToCreate:(UIGestureRecognizer<MOOPullGestureRecognizer> *)gestureRecognizer];
+    }
+}
+
+- (void)_pulledToCreate:(UIGestureRecognizer<MOOPullGestureRecognizer> *)pullGestureRecognizer;
+{
+    
+    CGPoint contentOffset = self.tableView.contentOffset;
+    contentOffset.y -= CGRectGetMinY(pullGestureRecognizer.triggerView.frame);
+    
+    self.tableView.contentOffset = contentOffset;
+    
+    ShoppingList* newList = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingList" inManagedObjectContext:self.managedObjectContext];
+    newList.name = @"";
+    newList.date = [NSDate date];
+    [self.lists addObject:newList];
+    
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
+    [self.lists sortUsingDescriptors:@[sortDescriptor]];
+    
+    NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
+    [self.tableView insertRowsAtIndexPaths:@[newIndexPath] withRowAnimation:UITableViewRowAnimationTop];
+    editingIndexPath = newIndexPath;
+    
+    UITableViewCell* newCell = [self.tableView cellForRowAtIndexPath:newIndexPath];
+    
+    NSArray* visibleCells = [self.tableView visibleCells];
+    for (int i=1; i<[visibleCells count]; i++) {
+        UITableViewCell* cell = [visibleCells objectAtIndex:i];
+        cell.alpha = 0.25;
+    }
+    
+	CGRect bounds = [newCell.contentView bounds];
+	CGRect rect = CGRectInset(bounds, 20.0, 10.0);
+    UITextField* tf = [[UITextField alloc] initWithFrame:rect];
+    
+    tf.placeholder = @"List name";
+    tf.delegate = self;
+    tf.tag = TAG_NEW_LIST;
+    tf.font = [UIFont boldSystemFontOfSize:17];
+    
+    [newCell.contentView addSubview:tf];
+    [tf becomeFirstResponder];
+    
+    [self.tableView removeGestureRecognizer:recognizer];
+}
+
+#pragma mark - UIScrollViewDelegate methods
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    if (scrollView.pullGestureRecognizer)
+        [scrollView.pullGestureRecognizer scrollViewDidScroll:scrollView];
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    if (scrollView.pullGestureRecognizer)
+        [scrollView.pullGestureRecognizer resetPullState];
 }
 
 - (NSString *)timeIntervalToStringWithInterval:(NSTimeInterval)interval
