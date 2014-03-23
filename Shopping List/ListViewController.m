@@ -19,6 +19,8 @@
 
 #define TAG_NEW_ITEM 1
 #define TAG_EDIT_QUANTITY 2
+#define TAG_EDIT_LIST_TITLE 3
+#define TAG_CONFIRM_DELETE 4
 
 @interface ListViewController ()
 
@@ -129,9 +131,7 @@
                                     UIViewAutoresizingFlexibleRightMargin |
                                     UIViewAutoresizingFlexibleTopMargin |
                                     UIViewAutoresizingFlexibleBottomMargin;
-        helpView.backgroundColor = [UIColor colorWithWhite:0.95f alpha:1.0f];
-        helpView.layer.borderColor = [[UIColor colorWithWhite:0.9f alpha:1.0f] CGColor];
-        helpView.layer.borderWidth = 1.0f;
+        helpView.backgroundColor = [UIColor colorWithWhite:0.0f alpha:0.8f];
         
         self.swipeHelpViewLabel = [[UILabel alloc] init];
         UILabel* helpText = self.swipeHelpViewLabel;
@@ -242,13 +242,11 @@
 
 - (IBAction)didTapTitle:(id)sender
 {
-//    NSLog(@"Did tap on title");
-    
     alert = [[UIAlertView alloc] initWithTitle:@"Rename list" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Save", nil];
     alert.alertViewStyle = UIAlertViewStylePlainTextInput;
-    alert.tag = 2;
+    alert.tag = TAG_EDIT_LIST_TITLE;
     UITextField *tf = [alert textFieldAtIndex:0];
-    tf.tag = 2;
+    tf.tag = TAG_EDIT_LIST_TITLE;
     [tf setDelegate:self];
     [tf setReturnKeyType:UIReturnKeyDone];
     [tf setText:self.list.name];
@@ -311,38 +309,6 @@
     }
 }
 
-- (void)toggleRowPurchased:(NSIndexPath *)indexPath
-{
-//    UITableViewCell* cell = [self.tableView cellForRowAtIndexPath:indexPath];
-    ShoppingItem* item = [self.items objectAtIndex:[indexPath row]];
-    
-    item.bought = [NSNumber numberWithBool:![item.bought boolValue]];
-    
-//    if ([item.bought boolValue]) {
-//        item.bought = [NSNumber numberWithBool:NO];
-//        [cell setAccessoryType:UITableViewCellAccessoryNone];
-//        cell.textLabel.alpha = 1.0;
-//    } else {
-//        item.bought = [NSNumber numberWithBool:YES];
-//        [cell setAccessoryType:UITableViewCellAccessoryCheckmark];
-//        cell.textLabel.alpha = 0.3;
-//    }
-    
-    NSError *error;
-    if (![self.managedObjectContext save:&error]) {
-        NSLog(@"Error saving context: %@", [error localizedDescription]);
-        alert = [[UIAlertView alloc] initWithTitle:@"Error"
-                                           message:@"There was an error updating the list."
-                                          delegate:self
-                                 cancelButtonTitle:@"OK"
-                                 otherButtonTitles:nil];
-        [alert show];
-    } else {
-        NSLog(@"List updated");
-        [self.tableView reloadData];
-    }
-}
-
 - (void)deleteRowWithPrompt:(NSIndexPath *)indexPath
 {
     editingIndexPath = indexPath;
@@ -355,7 +321,7 @@
                                                        delegate:self
                                               cancelButtonTitle:@"No"
                                               otherButtonTitles:@"Yes", nil];
-    alert.tag = 3;
+    alert.tag = TAG_CONFIRM_DELETE;
     [alert show];
 }
 
@@ -427,7 +393,6 @@
     contentOffset.y -= CGRectGetMinY(pullGestureRecognizer.triggerView.frame);
     
     self.tableView.contentOffset = contentOffset;
-//    NSLog(@"New offset: %f", contentOffset.y);
     
     ShoppingItem* newItem = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingItem" inManagedObjectContext:self.managedObjectContext];
     [newItem setProduct:nil];
@@ -457,7 +422,7 @@
     
     tf.placeholder = @"Product name";
     tf.delegate = self;
-    tf.tag = 5;
+    tf.tag = TAG_NEW_ITEM;
     [newCell.contentView addSubview:tf];
     [tf becomeFirstResponder];
     
@@ -531,7 +496,7 @@
     
     
     if ([item.quantity intValue] > 1)
-        [cell.detailTextLabel setText:[NSString stringWithFormat:@"%dx", [item.quantity intValue]]];
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%dx", [item.quantity intValue]];
         cell.textLabel.attributedText = attributeString;
     
     UIView* changeQuantityView = [self viewWithImageName:@"db"];
@@ -576,13 +541,13 @@
             editingItem.quantity = [NSNumber numberWithFloat:newQuantity];
             NSLog(@"Updated quantity for item %@", editingItem.product.name);
         }
-    } else if (alertView.tag == 2) {
+    } else if (alertView.tag == TAG_EDIT_LIST_TITLE) {
         NSString *newName = [[alertView textFieldAtIndex:0] text];
         if (buttonIndex > 0 && [newName length] > 0) {
             [self.list setName:newName];
             [[NSNotificationCenter defaultCenter] postNotificationName:@"ShoppingListDidChangeNotification" object:self];
         }
-    } else if (alertView.tag == 3) {
+    } else if (alertView.tag == TAG_CONFIRM_DELETE) {
         if (buttonIndex == 0) {
             MCSwipeTableViewCell* cell = (MCSwipeTableViewCell *)[self.tableView cellForRowAtIndexPath:editingIndexPath];
             
@@ -613,21 +578,6 @@
 
 }
 
-
-
-#pragma mark - UITextFieldDelegate methods
-
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
-{
-    if (textField.tag == 5) { // New item textfield
-        //        NSLog(@"New item tf editing, new string: %@", string);
-        //        [autocompleteTableView.delegate updateEntriesWithSubstring:string];
-        //        [autocompleteTableView updateEntriesWithSubstring:string];
-        //        [autocompleteTableView reloadData];
-    }
-    return YES;
-}
-
 #pragma mark - UIScrollViewDelegate methods
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
@@ -642,56 +592,64 @@
         [scrollView.pullGestureRecognizer resetPullState];
 }
 
+// TODO add tag switch
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     NSError *error;
     NSString* txt = textField.text;
-    ShoppingItem* editingItem = [self.items objectAtIndex:[editingIndexPath row]];
-    [textField removeFromSuperview];
-    [textField resignFirstResponder];
     
-    if ([txt length]) {
-        // See if product already exists
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Product"
-                                                  inManagedObjectContext:self.managedObjectContext];
-        NSPredicate *pred = [NSPredicate predicateWithFormat:@"name == %@", txt];
-        [fetchRequest setPredicate:pred];
-        [fetchRequest setEntity:entity];
+    if (textField.tag == TAG_NEW_ITEM) {
+        ShoppingItem* editingItem = [self.items objectAtIndex:[editingIndexPath row]];
+        [textField removeFromSuperview];
+        [textField resignFirstResponder];
         
-        NSArray *fetchedObjects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
-        
-        // If a object was found, use it in the new item. If not, create it
-        if ([fetchedObjects count] > 0) {
-            NSLog(@"Product %@ found. Using it...", txt);
-            [editingItem setProduct:[fetchedObjects objectAtIndex:0]];
+        if ([txt length]) {
+            // See if product already exists
+            NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+            NSEntityDescription *entity = [NSEntityDescription entityForName:@"Product"
+                                                      inManagedObjectContext:self.managedObjectContext];
+            NSPredicate *pred = [NSPredicate predicateWithFormat:@"name == %@", txt];
+            [fetchRequest setPredicate:pred];
+            [fetchRequest setEntity:entity];
+            
+            NSArray *fetchedObjects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+            
+            // If a object was found, use it in the new item. If not, create it
+            if ([fetchedObjects count] > 0) {
+                NSLog(@"Product %@ found. Using it...", txt);
+                [editingItem setProduct:[fetchedObjects objectAtIndex:0]];
+            } else {
+                NSLog(@"Product not found. Creating %@...", txt);
+                Product* newProduct = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
+                [newProduct setName:txt];
+                [editingItem setProduct:newProduct];
+            }
+            
+            [self.tableView reloadRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+            
+            if (![self.managedObjectContext save:&error]) {
+                NSLog(@"Error saving context: %@", [error localizedDescription]);
+                [self.managedObjectContext deleteObject:editingItem];
+                [self.items removeObject:editingItem];
+                [self.tableView deleteRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationTop];
+            } else {
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"ProductListDidChangeNotification" object:self];
+            }
+            
         } else {
-            NSLog(@"Product not found. Creating %@...", txt);
-            Product* newProduct = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
-            [newProduct setName:txt];
-            [editingItem setProduct:newProduct];
-        }
-        
-        [self.tableView reloadRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationNone];
-        
-        if (![self.managedObjectContext save:&error]) {
-            NSLog(@"Error saving context: %@", [error localizedDescription]);
             [self.managedObjectContext deleteObject:editingItem];
             [self.items removeObject:editingItem];
             [self.tableView deleteRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationTop];
-        } else {
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"ProductListDidChangeNotification" object:self];
         }
         
-    } else {
-        [self.managedObjectContext deleteObject:editingItem];
-        [self.items removeObject:editingItem];
-        [self.tableView deleteRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationTop];
+        editingIndexPath = nil;
+        [self.tableView addGestureRecognizer:recognizer];
+        [self.tableView.pullGestureRecognizer resetPullState];
+    } else if (textField.tag == TAG_EDIT_LIST_TITLE && [txt length]) {
+        [textField resignFirstResponder];
+        [alert dismissWithClickedButtonIndex:1 animated:YES];
     }
     
-    editingIndexPath = nil;
-    [self.tableView addGestureRecognizer:recognizer];
-    [self.tableView.pullGestureRecognizer resetPullState];
     return YES;
 }
 

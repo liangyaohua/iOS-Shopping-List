@@ -250,7 +250,8 @@
     prodLabel.text = item.product.name;
     quantityTextfield.text = [NSString stringWithFormat:@"%d", [item.quantity intValue]];
     purchasedQuantityTextfield.text = [NSString stringWithFormat:@"%d", [item.purchasedQuantity intValue]];
-    priceTextField.text = [NSString stringWithFormat:@"%.2f", [item.price floatValue]];
+    if ([item.price floatValue] > 0.0f)
+        priceTextField.text = [NSString stringWithFormat:@"%.2f", [item.price floatValue]];
     [purchaseButton setTitle: ((![item.bought boolValue]) ? @"Purchase" : @"Update") forState:UIControlStateNormal];
     
     [UIView animateWithDuration:0.25
@@ -374,13 +375,13 @@
     if (![item.bought boolValue]) {
         cell.textLabel.alpha = 1.0;
         if ([item.quantity intValue] > 1)
-            [cell.detailTextLabel setText:[NSString stringWithFormat:@"%dx", [item.quantity intValue]]];
+            cell.detailTextLabel.text = [NSString stringWithFormat:@"%dx", [item.quantity intValue]];
     } else {
         cell.textLabel.alpha = 0.3;
         
         int quant = [item.purchasedQuantity intValue];
         float price = [item.price floatValue];
-        [cell.detailTextLabel setText:[NSString stringWithFormat:@"%d £%.2f", quant, quant*price]];
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%d £%.2f", quant, quant*price];
         
         [attributeString addAttribute:NSStrikethroughStyleAttributeName
                                 value:@1

@@ -154,7 +154,7 @@
     [self.tableView addGestureRecognizer:lpgr];
     
     self.navigationItem.RightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNewList:)];
-    self.navigationItem.leftBarButtonItem = self.editButtonItem;
+//    self.navigationItem.leftBarButtonItem = self.editButtonItem;
 }
 
 - (void)didReceiveMemoryWarning
@@ -188,11 +188,11 @@
     [dateFormatter setTimeStyle:NSDateFormatterNoStyle];
     [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
     
-    [cell.textLabel setText:[list name]];
+    cell.textLabel.text = list.name;
+    cell.textLabel.font = [UIFont boldSystemFontOfSize:17];
     NSString *detailText = ([list.products count] == 1) ? @"1 Item" : [NSString stringWithFormat:@"%lu Items", (unsigned long)[list.products count]];
     NSString *timeText = [self timeIntervalToStringWithInterval:[list.date timeIntervalSinceNow]];
-    detailText = [detailText stringByAppendingString:[NSString stringWithFormat:@" | %@", timeText]];
-    [cell.detailTextLabel setText:detailText];
+    cell.detailTextLabel.text = [detailText stringByAppendingString:[NSString stringWithFormat:@" | %@", timeText]];
     
     cell.detailTextLabel.textColor = [UIColor darkGrayColor];
     [cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
@@ -234,6 +234,7 @@
         } else {
             [self.lists removeObjectAtIndex:[indexPath row]];
             [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"ShoppingListDidChangeNotification" object:self];
         }
     }
 }

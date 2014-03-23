@@ -20,9 +20,14 @@
 {
     self = [super init];
     if (self) {
-        [self setManagedObjectContext:context];
+        self.managedObjectContext = context;
+        
+        self.tableView.rowHeight = 50;
+        
         [self loadProducts];
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProductList:) name:@"ProductListDidChangeNotification" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(listsDidChange:) name:@"ShoppingListDidChangeNotification" object:nil];
     }
     return self;
 }
@@ -40,6 +45,19 @@
     self.products = [[context executeFetchRequest:fetchRequest error:&error] mutableCopy];
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
     [self.products sortUsingDescriptors:@[sortDescriptor]];
+}
+
+- (void)updateProductList:(NSNotification *)notification
+{
+    if (notification.object != self) {
+        [self loadProducts];
+        [self.tableView reloadData];
+    }
+}
+
+- (void)listsDidChange:(id)sender
+{
+    [self.tableView reloadData];
 }
 
 - (void)addNewProduct:(id)sender
@@ -81,14 +99,6 @@
     return YES;
 }
 
-- (void)updateProductList:(NSNotification *)notification
-{
-    if (notification.object != self) {
-        [self loadProducts];
-        [self.tableView reloadData];
-    }
-}
-
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -104,13 +114,12 @@
     
     self.navigationItem.RightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNewProduct:)];
     
-    self.navigationItem.leftBarButtonItem = self.editButtonItem;
+//    self.navigationItem.leftBarButtonItem = self.editButtonItem;
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -127,15 +136,19 @@
 {
     static NSString *CellIdentifier = @"Cell Identifier";
     
-    [tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:CellIdentifier];
-    
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-    
-    Product *p = [self.products objectAtIndex:[indexPath row]];
-    
-    [cell.textLabel setText:p.name];
-    
-//    [cell setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (!cell) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1  reuseIdentifier:CellIdentifier];
+        
+        Product *p = [self.products objectAtIndex:[indexPath row]];
+        
+        cell.textLabel.text = p.name;
+                
+        // Remove inset of iOS 7 separators.
+        if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
+            cell.separatorInset = UIEdgeInsetsZero;
+        }
+    }
     
     return cell;
 
@@ -168,4 +181,5 @@
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
+
 @end
