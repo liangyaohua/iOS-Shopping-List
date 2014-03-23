@@ -7,14 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SelectItemsViewController.h"
-#import "SelectListViewController.h"
-#import "ShoppingList.h"
 #import "ShoppingTrip.h"
-#import "MCSwipeTableViewCell.h"
 
-@interface TripViewController : UIViewController <UIGestureRecognizerDelegate,UITableViewDelegate, UITableViewDataSource,MCSwipeTableViewCellDelegate> {
-    UIAlertView *alert;
+@interface TripViewController : UIViewController <UIGestureRecognizerDelegate,UITableViewDelegate, UITableViewDataSource> {
+    UIAlertView* alert;
     NSIndexPath* editingIndexPath;
     UIView* blackView;
     UIView* modalView;
@@ -32,12 +28,11 @@
     UILabel* totalPriceLabel;
 }
 
-@property NSManagedObjectContext *managedObjectContext;
-@property UIView* swipeHelpView;
-@property UILabel* swipeHelpViewLabel;
+@property NSManagedObjectContext* managedObjectContext;
 @property UITableView* tableView;
 
 @property ShoppingTrip* trip;
+@property NSArray* allItems;
 @property NSArray* items;
 
 - (id)initWithTrip:(ShoppingTrip *)trip andSharedContext:(NSManagedObjectContext *)context;

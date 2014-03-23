@@ -116,6 +116,9 @@
         [ud setBool:pref.value forKey:pref.key];
 //        NSLog(@"Pref %@ updated to %@", pref.key, pref.value ? @"YES" : @"NO");
     }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"SettingsDidChangeNotification" object:self];
+
 }
 
 @end

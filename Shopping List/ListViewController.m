@@ -17,6 +17,9 @@
 #import "MOOPullGestureRecognizer.h"
 #import "MOOCreateView.h"
 
+#define TAG_NEW_ITEM 1
+#define TAG_EDIT_QUANTITY 2
+
 @interface ListViewController ()
 
 @end
@@ -47,8 +50,6 @@
         [self.tableView setBackgroundView:backgroundView];
         [self renderEmptyView];
         
-//        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(editButtonResponder:)];
-        
         if (![self.items count]) {
             self.view = self.emptyView;
         } else {
@@ -56,6 +57,7 @@
             [self.items sortUsingDescriptors:@[sortDescriptor]];
             // TODO correct barbuttonitem
             self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemPlay target:self action:@selector(startShoppingTrip:)];
+//            self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self viewWithImageName:@"cart"]];
         }
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProductList:) name:@"ProductListDidChangeNotification" object:nil];
@@ -462,86 +464,6 @@
     [self.tableView removeGestureRecognizer:recognizer];
 }
 
-#pragma mark - UITextFieldDelegate methods
-
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
-{
-    if (textField.tag == 5) { // New item textfield
-//        NSLog(@"New item tf editing, new string: %@", string);
-//        [autocompleteTableView.delegate updateEntriesWithSubstring:string];
-//        [autocompleteTableView updateEntriesWithSubstring:string];
-//        [autocompleteTableView reloadData];
-    }
-    return YES;
-}
-
-#pragma mark - UIScrollViewDelegate methods
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-    if (scrollView.pullGestureRecognizer)
-        [scrollView.pullGestureRecognizer scrollViewDidScroll:scrollView];
-}
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
-{
-    if (scrollView.pullGestureRecognizer)
-        [scrollView.pullGestureRecognizer resetPullState];
-}
-
-- (BOOL)textFieldShouldReturn:(UITextField *)textField
-{
-    NSError *error;
-    NSString* txt = textField.text;
-    ShoppingItem* editingItem = [self.items objectAtIndex:[editingIndexPath row]];
-    [textField removeFromSuperview];
-    [textField resignFirstResponder];
-
-    if ([txt length]) {
-        // See if product already exists
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Product"
-                                                  inManagedObjectContext:self.managedObjectContext];
-        NSPredicate *pred = [NSPredicate predicateWithFormat:@"name == %@", txt];
-        [fetchRequest setPredicate:pred];
-        [fetchRequest setEntity:entity];
-        
-        NSArray *fetchedObjects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
-        
-        // If a object was found, use it in the new item. If not, create it
-        if ([fetchedObjects count] > 0) {
-            NSLog(@"Product %@ found. Using it...", txt);
-            [editingItem setProduct:[fetchedObjects objectAtIndex:0]];
-        } else {
-            NSLog(@"Product not found. Creating %@...", txt);
-            Product* newProduct = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
-            [newProduct setName:txt];
-            [editingItem setProduct:newProduct];
-        }
-        
-        [self.tableView reloadRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationNone];
-        
-        if (![self.managedObjectContext save:&error]) {
-            NSLog(@"Error saving context: %@", [error localizedDescription]);
-            [self.managedObjectContext deleteObject:editingItem];
-            [self.items removeObject:editingItem];
-            [self.tableView deleteRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationTop];
-        } else {
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"ProductListDidChangeNotification" object:self];
-        }
-        
-    } else {
-        [self.managedObjectContext deleteObject:editingItem];
-        [self.items removeObject:editingItem];
-        [self.tableView deleteRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationTop];
-    }
-    
-    editingIndexPath = nil;
-    [self.tableView addGestureRecognizer:recognizer];
-    [self.tableView.pullGestureRecognizer resetPullState];
-    return YES;
-}
-
 - (IBAction)editButtonResponder:(id)sender
 {
     SelectItemsViewController *selectItemsViewController = [[SelectItemsViewController alloc] initWithList:self.list andSharedContext:self.managedObjectContext];
@@ -596,8 +518,8 @@
         attributeString = [[NSMutableAttributedString alloc] init];
     }
     
-    UIView *purchaseView = nil;
-    UIColor *purchaseColor = nil;
+//    UIView *purchaseView = nil;
+//    UIColor *purchaseColor = nil;
     cell.firstTrigger = 0.2;
     
     UIView *crossView = [self viewWithImageName:@"cross"];
@@ -613,100 +535,69 @@
     if ([item.quantity intValue] > 1)
         [cell.detailTextLabel setText:[NSString stringWithFormat:@"%dx", [item.quantity intValue]]];
     
-    
-    if (![item.bought boolValue]) {
-//        [cell setAccessoryType:UITableViewCellAccessoryNone];
-        cell.textLabel.alpha = 1.0;
-        purchaseView = [self viewWithImageName:@"addToCart"];
-        purchaseColor = [UIColor colorWithRed:85.0 / 255.0 green:213.0 / 255.0 blue:80.0 / 255.0 alpha:1.0];
-    } else {
-//        [cell setAccessoryType:UITableViewCellAccessoryCheckmark];
-        cell.textLabel.alpha = 0.3;
-        purchaseView = [self viewWithImageName:@"removeFromCart"];
-        purchaseColor = [UIColor colorWithRed:254.0 / 255.0 green:217.0 / 255.0 blue:56.0 / 255.0 alpha:1.0];
-        
-        
-        [attributeString addAttribute:NSStrikethroughStyleAttributeName
-                                value:@1
-                                range:NSMakeRange(0, [attributeString length])];
-    }
-    
+//    
+//    if (![item.bought boolValue]) {
+////        [cell setAccessoryType:UITableViewCellAccessoryNone];
+//        cell.textLabel.alpha = 1.0;
+//        purchaseView = [self viewWithImageName:@"addToCart"];
+//        purchaseColor = [UIColor colorWithRed:85.0 / 255.0 green:213.0 / 255.0 blue:80.0 / 255.0 alpha:1.0];
+//    } else {
+////        [cell setAccessoryType:UITableViewCellAccessoryCheckmark];
+//        cell.textLabel.alpha = 0.3;
+//        purchaseView = [self viewWithImageName:@"removeFromCart"];
+//        purchaseColor = [UIColor colorWithRed:254.0 / 255.0 green:217.0 / 255.0 blue:56.0 / 255.0 alpha:1.0];
+//    
+//        
+//        [attributeString addAttribute:NSStrikethroughStyleAttributeName
+//                                value:@1
+//                                range:NSMakeRange(0, [attributeString length])];
+//    }
+//    
     cell.textLabel.attributedText = attributeString;
     
-    [cell setSwipeGestureWithView:purchaseView color:purchaseColor mode:MCSwipeTableViewCellModeSwitch state:MCSwipeTableViewCellState1 completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode) {
-        [self toggleRowPurchased:indexPath];
+    UIView* changeQuantityView = [self viewWithImageName:@"db"];
+    UIColor* changeQuantityColor = [UIColor colorWithRed:254.0 / 255.0 green:217.0 / 255.0 blue:56.0 / 255.0 alpha:1.0];
+    
+    [cell setSwipeGestureWithView:changeQuantityView color:changeQuantityColor mode:MCSwipeTableViewCellModeSwitch state:MCSwipeTableViewCellState1 completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode) {
+        // TODO
+        NSLog(@"Swiped to change quantity");
+        [self editQuantityForPath:indexPath];
     }];
     
     return cell;
 }
 
-- (UIView *)viewWithImageName:(NSString *)imageName {
-    UIImage *image = [UIImage imageNamed:imageName];
-    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-    imageView.contentMode = UIViewContentModeCenter;
-    return imageView;
-}
-
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    [self renderSwipeHelpView];
+//    [self renderSwipeHelpView];
 }
 
-- (void)actionSheet:(UIActionSheet *)popup clickedButtonAtIndex:(NSInteger)buttonIndex {
-    switch (popup.tag) {
-        case 1: {
-            ShoppingItem *editingItem = [self.items objectAtIndex:[editingIndexPath row]];
-            switch (buttonIndex) {
-                case 0: {
-                    // delete
-                    [self deleteRow:editingIndexPath];
-                    
-                    editingIndexPath = nil;
-                    break;
-                }
-                case 1: {
-                    // change amount
-                    alert = [[UIAlertView alloc] initWithTitle:@"Edit amount" message:[NSString stringWithFormat:@"Enter the amount for '%@'", editingItem.product.name] delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Update", nil];
-                    alert.alertViewStyle = UIAlertViewStylePlainTextInput;
-                    alert.tag = 1;
-                    UITextField *tf = [alert textFieldAtIndex:0];
-                    tf.tag = 1;
-                    [tf setDelegate:self];
-                    [tf setKeyboardType:UIKeyboardTypeDecimalPad];
-                    [tf setReturnKeyType:UIReturnKeyDone];
-                    [tf setPlaceholder:[editingItem.quantity stringValue]];
-                    [alert show];
-                    
-                    break;
-                }
-                case 2: {
-                    // toggle purchased
-                    [self toggleRowPurchased:editingIndexPath];
-                    editingIndexPath = nil;
-                    
-                    break;
-                }
-                default:
-                    // cancel, etc
-                    //                    NSLog(@"Index %lu, button %@", buttonIndex, [popup buttonTitleAtIndex:buttonIndex]);
-                    editingIndexPath = nil;
-                    break;
-            }
-            break;
-        }
-        default:
-            break;
-    }
+- (void)editQuantityForPath:(NSIndexPath *)indexPath
+{
+    ShoppingItem *item = [self.items objectAtIndex:[indexPath row]];
+    editingIndexPath = indexPath;
+    
+    alert = [[UIAlertView alloc] initWithTitle:@"Edit amount" message:[NSString stringWithFormat:@"Enter the quantity for '%@'", item.product.name] delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Update", nil];
+    alert.alertViewStyle = UIAlertViewStylePlainTextInput;
+    alert.tag = TAG_EDIT_QUANTITY;
+    UITextField *tf = [alert textFieldAtIndex:0];
+    tf.tag = TAG_EDIT_QUANTITY;
+    [tf setDelegate:self];
+    [tf setKeyboardType:UIKeyboardTypeDecimalPad];
+    [tf setReturnKeyType:UIReturnKeyDone];
+    [tf setPlaceholder:[item.quantity stringValue]];
+    [alert show];
 }
 
 - (void)alertView:(UIAlertView *)alertView willDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    if (alertView.tag == 1) {
+    if (alertView.tag == TAG_EDIT_QUANTITY) {
         ShoppingItem *editingItem = [[self.list.products allObjects] objectAtIndex:[editingIndexPath row]];
         float newQuantity = [[[alertView textFieldAtIndex:0] text] floatValue];
         if (buttonIndex > 0 && newQuantity > 0) {
             editingItem.quantity = [NSNumber numberWithFloat:newQuantity];
+            NSLog(@"Updated quantity for item %@", editingItem.product.name);
         }
     } else if (alertView.tag == 2) {
         NSString *newName = [[alertView textFieldAtIndex:0] text];
@@ -743,6 +634,95 @@
         editingIndexPath = nil;
     }
 
+}
+
+
+
+#pragma mark - UITextFieldDelegate methods
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    if (textField.tag == 5) { // New item textfield
+        //        NSLog(@"New item tf editing, new string: %@", string);
+        //        [autocompleteTableView.delegate updateEntriesWithSubstring:string];
+        //        [autocompleteTableView updateEntriesWithSubstring:string];
+        //        [autocompleteTableView reloadData];
+    }
+    return YES;
+}
+
+#pragma mark - UIScrollViewDelegate methods
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    if (scrollView.pullGestureRecognizer)
+        [scrollView.pullGestureRecognizer scrollViewDidScroll:scrollView];
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    if (scrollView.pullGestureRecognizer)
+        [scrollView.pullGestureRecognizer resetPullState];
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    NSError *error;
+    NSString* txt = textField.text;
+    ShoppingItem* editingItem = [self.items objectAtIndex:[editingIndexPath row]];
+    [textField removeFromSuperview];
+    [textField resignFirstResponder];
+    
+    if ([txt length]) {
+        // See if product already exists
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Product"
+                                                  inManagedObjectContext:self.managedObjectContext];
+        NSPredicate *pred = [NSPredicate predicateWithFormat:@"name == %@", txt];
+        [fetchRequest setPredicate:pred];
+        [fetchRequest setEntity:entity];
+        
+        NSArray *fetchedObjects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+        
+        // If a object was found, use it in the new item. If not, create it
+        if ([fetchedObjects count] > 0) {
+            NSLog(@"Product %@ found. Using it...", txt);
+            [editingItem setProduct:[fetchedObjects objectAtIndex:0]];
+        } else {
+            NSLog(@"Product not found. Creating %@...", txt);
+            Product* newProduct = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
+            [newProduct setName:txt];
+            [editingItem setProduct:newProduct];
+        }
+        
+        [self.tableView reloadRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+        
+        if (![self.managedObjectContext save:&error]) {
+            NSLog(@"Error saving context: %@", [error localizedDescription]);
+            [self.managedObjectContext deleteObject:editingItem];
+            [self.items removeObject:editingItem];
+            [self.tableView deleteRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationTop];
+        } else {
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"ProductListDidChangeNotification" object:self];
+        }
+        
+    } else {
+        [self.managedObjectContext deleteObject:editingItem];
+        [self.items removeObject:editingItem];
+        [self.tableView deleteRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationTop];
+    }
+    
+    editingIndexPath = nil;
+    [self.tableView addGestureRecognizer:recognizer];
+    [self.tableView.pullGestureRecognizer resetPullState];
+    return YES;
+}
+
+- (UIView *)viewWithImageName:(NSString *)imageName {
+    UIImage *image = [UIImage imageNamed:imageName];
+    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+    imageView.contentMode = UIViewContentModeCenter;
+    return imageView;
 }
 
 @end

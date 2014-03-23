@@ -9,13 +9,9 @@
 // TODO warning when trying to leave view
 
 #import "TripViewController.h"
-#import "SelectListViewController.h"
-#import "Product.h"
-#import "ShoppingItem.h"
 #import "ShoppingTripItem.h"
-
-#import "MOOPullGestureRecognizer.h"
-#import "MOOCreateView.h"
+#import "ShoppingList.h"
+#import "Product.h"
 
 @interface TripViewController ()
 
@@ -30,10 +26,7 @@
         self.trip = trip;
         self.managedObjectContext = context;
         
-        NSMutableArray* sortedItems = [[trip.items allObjects] mutableCopy];
-        NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
-        [sortedItems sortUsingDescriptors:@[sortDescriptor]];
-        self.items = sortedItems;
+        [self loadItems:self];
         
         self.title = trip.list.name;
         
@@ -61,9 +54,40 @@
                 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProductList:) name:@"ProductListDidChangeNotification" object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProductList:) name:@"ShoppingListDidChangeNotification" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadItems:) name:@"SettingsDidChangeNotification" object:nil];
+
     }
     
     return self;
+}
+
+- (void)loadItems:(id)sender
+{
+    NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
+    NSMutableArray* items;
+    self.allItems = [self.trip.items allObjects];
+    
+    // If auto removal is enabled, filter the list of items first
+    if ([ud boolForKey:@"ShoppingListUserDefaultsAutoRemoval"]) {
+        items = [[NSMutableArray alloc] init];
+        for (ShoppingTripItem* item in self.trip.items) {
+            if (![item.bought boolValue])
+                [items addObject:item];
+        }
+    } else {
+        items = [self.allItems mutableCopy];
+    }
+    
+    // Sort items
+    NSSortDescriptor* sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
+    [items sortUsingDescriptors:@[sortDescriptor]];
+    
+    self.items = items;
+    
+    if (sender != self) {
+        NSLog(@"Settings were updated, reloading trip");
+        [self.tableView reloadData];
+    }
 }
 
 - (void)renderTotalPriceView
@@ -107,86 +131,13 @@
 {
     float total = 0.0f;
     
-    for (ShoppingTripItem* item in self.items) {
+    for (ShoppingTripItem* item in self.allItems) {
         if ([item.bought boolValue] == YES)
             total += [item.purchasedQuantity floatValue] * [item.price floatValue];
     }
     
     totalPriceLabel.text = [NSString stringWithFormat:@"£%.2f", total];
     NSLog(@"Total price calculated as %.2f", total);
-}
-
-- (void)renderSwipeHelpView
-{
-    if (self.swipeHelpView == nil) {
-        self.swipeHelpView = [[UIView alloc] init];
-        UIView* helpView = self.swipeHelpView;
-        helpView.autoresizesSubviews = YES;
-        helpView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin |
-        UIViewAutoresizingFlexibleRightMargin |
-        UIViewAutoresizingFlexibleTopMargin |
-        UIViewAutoresizingFlexibleBottomMargin;
-        helpView.backgroundColor = [UIColor colorWithWhite:0.95f alpha:1.0f];
-        helpView.layer.borderColor = [[UIColor colorWithWhite:0.9f alpha:1.0f] CGColor];
-        helpView.layer.borderWidth = 1.0f;
-        
-        self.swipeHelpViewLabel = [[UILabel alloc] init];
-        UILabel* helpText = self.swipeHelpViewLabel;
-        helpText.text = @"Swipe right to (un)mark items as purchased";
-        helpText.textAlignment = NSTextAlignmentCenter;
-        helpText.numberOfLines = 0;
-        helpText.lineBreakMode = NSLineBreakByWordWrapping;
-        helpText.font = [UIFont systemFontOfSize:12];
-        [helpView addSubview:helpText];
-        
-        [self.view addSubview:helpView];
-        
-        
-    }
-    
-    int paddingY = 35;
-    int width = self.view.frame.size.width;
-    int height = 50;
-    int y = CGRectGetMaxY(self.view.frame) - height - paddingY - 15;
-    
-    self.swipeHelpView.frame = CGRectMake(0,
-                                          CGRectGetMaxY(self.view.frame),
-                                          width,
-                                          height);
-    self.swipeHelpViewLabel.frame = CGRectMake(0,
-                                               0,
-                                               self.swipeHelpView.frame.size.width,
-                                               self.swipeHelpView.frame.size.height);
-    
-    [UIView animateWithDuration:0.5
-                          delay:0.1
-                        options: UIViewAnimationOptionCurveEaseOut
-                     animations:^{
-                         self.swipeHelpView.frame = CGRectMake(self.swipeHelpView.frame.origin.x,
-                                                               y,
-                                                               self.swipeHelpView.frame.size.width,
-                                                               self.swipeHelpView.frame.size.height);
-                     }
-                     completion:^(BOOL finished){
-                     }];
-    
-    [self performSelector: @selector(hideSwipeHelpView) withObject: nil afterDelay: 5.0];
-
-}
-
-- (void)hideSwipeHelpView
-{
-    [UIView animateWithDuration:0.5
-                          delay:0.1
-                        options: UIViewAnimationOptionCurveEaseOut
-                     animations:^{
-                         self.swipeHelpView.frame = CGRectMake(self.swipeHelpView.frame.origin.x,
-                                                               CGRectGetMaxY(self.view.frame),
-                                                               self.swipeHelpView.frame.size.width,
-                                                               self.swipeHelpView.frame.size.height);
-                     }
-                     completion:^(BOOL finished){
-                     }];
 }
 
 - (void)renderPurchaseViewForItem:(ShoppingTripItem *)item
@@ -341,6 +292,8 @@
         
 
     }
+    
+    [self dismissKeyboard];
 }
 
 - (void)purchaseViewCancelButtonResponder:(id)sender
@@ -354,6 +307,8 @@
                      }
                      completion:^(BOOL finished){
                      }];
+    
+    [self dismissKeyboard];
 }
 
 - (void)updateProductList:(NSNotification *)notification
@@ -368,36 +323,9 @@
     self.title = self.trip.list.name;
 }
 
-- (void)toggleRowPurchased:(NSIndexPath *)indexPath
-{
-    ShoppingItem* item = [self.items objectAtIndex:[indexPath row]];
-    
-    item.bought = [NSNumber numberWithBool:![item.bought boolValue]];
-    
-    
-    NSError *error;
-    if (![self.managedObjectContext save:&error]) {
-        NSLog(@"Error saving context: %@", [error localizedDescription]);
-        alert = [[UIAlertView alloc] initWithTitle:@"Error"
-                                           message:@"There was an error updating the list."
-                                          delegate:self
-                                 cancelButtonTitle:@"OK"
-                                 otherButtonTitles:nil];
-        [alert show];
-    } else {
-        NSLog(@"List updated");
-        [self.tableView reloadData];
-    }
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-}
-
-- (void)viewDidDisappear:(BOOL)animated
-{
-    self.swipeHelpView.hidden = YES;
 }
 
 - (void)didReceiveMemoryWarning
@@ -421,16 +349,15 @@
 {
     static NSString *CellIdentifier = @"Cell Identifier";
     
-    MCSwipeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (!cell) {
-        cell = [[MCSwipeTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1  reuseIdentifier:CellIdentifier];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1  reuseIdentifier:CellIdentifier];
         
         if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
             cell.separatorInset = UIEdgeInsetsZero;
         }
         
         [cell setSelectionStyle:UITableViewCellSelectionStyleGray];
-        cell.delegate = self;
         
         cell.contentView.backgroundColor = [UIColor whiteColor];
     }
@@ -444,23 +371,12 @@
         attributeString = [[NSMutableAttributedString alloc] init];
     }
     
-    UIView *purchaseView = nil;
-    UIColor *purchaseColor = nil;
-    cell.firstTrigger = 0.2;
-    
-    [cell setDefaultColor:self.tableView.backgroundView.backgroundColor];
-    
     if (![item.bought boolValue]) {
         cell.textLabel.alpha = 1.0;
-        purchaseView = [self viewWithImageName:@"addToCart"];
-        purchaseColor = [UIColor colorWithRed:85.0 / 255.0 green:213.0 / 255.0 blue:80.0 / 255.0 alpha:1.0];
-        
         if ([item.quantity intValue] > 1)
             [cell.detailTextLabel setText:[NSString stringWithFormat:@"%dx", [item.quantity intValue]]];
     } else {
         cell.textLabel.alpha = 0.3;
-        purchaseView = [self viewWithImageName:@"removeFromCart"];
-        purchaseColor = [UIColor colorWithRed:254.0 / 255.0 green:217.0 / 255.0 blue:56.0 / 255.0 alpha:1.0];
         
         int quant = [item.purchasedQuantity intValue];
         float price = [item.price floatValue];
@@ -473,18 +389,7 @@
     
     cell.textLabel.attributedText = attributeString;
     
-    [cell setSwipeGestureWithView:purchaseView color:purchaseColor mode:MCSwipeTableViewCellModeSwitch state:MCSwipeTableViewCellState1 completionBlock:^(MCSwipeTableViewCell *cell, MCSwipeTableViewCellState state, MCSwipeTableViewCellMode mode) {
-        [self toggleRowPurchased:indexPath];
-    }];
-    
     return cell;
-}
-
-- (UIView *)viewWithImageName:(NSString *)imageName {
-    UIImage *image = [UIImage imageNamed:imageName];
-    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-    imageView.contentMode = UIViewContentModeCenter;
-    return imageView;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -492,11 +397,6 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 
     editingIndexPath = indexPath;
-    
-    // Animate table
-//    [self.tableView reloadData];
-//    [self.tableView beginUpdates];
-//    [self.tableView endUpdates];
     
     ShoppingTripItem *item = [self.items objectAtIndex:[indexPath row]];
     [self renderPurchaseViewForItem:item];
