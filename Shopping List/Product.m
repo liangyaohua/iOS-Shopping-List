@@ -14,5 +14,7 @@
 
 @dynamic name;
 @dynamic inItem;
+@dynamic price;
+@dynamic stock;
 
 @end

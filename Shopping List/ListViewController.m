@@ -38,15 +38,19 @@
         self.list = list;
         self.lists = lists;
         self.managedObjectContext = context;
+        self.trip = nil;
         self.items = [[list.products allObjects] mutableCopy];
         
         self.title = list.name;
         self.titleButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
         [self.titleButton setTitle:list.name forState:UIControlStateNormal];
         [self.titleButton.titleLabel setFont:[UIFont boldSystemFontOfSize:18]];
-        [self.titleButton addTarget:self action:@selector(didTapTitle:) forControlEvents:UIControlEventTouchUpInside];
+        [self.titleButton addTarget:self action:@selector(startShoppingTrip:) forControlEvents:UIControlEventTouchUpInside];
         self.navigationItem.titleView = self.titleButton;
         
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(editButtonResponder:)];
+        
+        self.hidesBottomBarWhenPushed = YES;
         self.tableView.delegate = self;
         self.tableView.rowHeight = 50;
         
@@ -56,15 +60,12 @@
         [self renderEmptyView];
         
         self.normalView = self.view;
-
+    
         if (![self.items count]) {
             self.view = self.emptyView;
         } else {
             NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
             [self.items sortUsingDescriptors:@[sortDescriptor]];
-            // TODO correct barbuttonitem
-            self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemPlay target:self action:@selector(startShoppingTrip:)];
-//            self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self viewWithImageName:@"cart"]];
         }
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProductList:) name:@"ProductListDidChangeNotification" object:nil];
@@ -91,7 +92,7 @@
     int labelWidth = self.tableView.frame.size.width - 2*paddingX;
     
     UILabel *emptyListLabel = [[UILabel alloc] init];
-    emptyListLabel.text = @"This shopping list is empty";
+    emptyListLabel.text = @"This quotation is empty";
     emptyListLabel.textAlignment = NSTextAlignmentCenter;
     emptyListLabel.lineBreakMode = NSLineBreakByWordWrapping;
     emptyListLabel.numberOfLines = 0;
@@ -106,7 +107,7 @@
     
     
     UILabel *infoLabel = [[UILabel alloc] init];
-    infoLabel.text = @"Add items to the list or import an existing list.";
+    infoLabel.text = @"Add products or import from an existing quotation.";
     infoLabel.frame = CGRectMake(paddingX, 190, labelWidth, 100);
     infoLabel.textAlignment = NSTextAlignmentCenter;
     infoLabel.numberOfLines = 0;
@@ -118,13 +119,13 @@
     UIButton *addItemsButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     addItemsButton.frame = CGRectMake(0, 290, self.tableView.frame.size.width, 30);
     addItemsButton.autoresizingMask = emptyListLabel.autoresizingMask;
-    [addItemsButton setTitle:@"Add items to list" forState:UIControlStateNormal];
+    [addItemsButton setTitle:@"Add products" forState:UIControlStateNormal];
     [addItemsButton addTarget:self action:@selector(editButtonResponder:) forControlEvents:UIControlEventTouchDown];
     
     UIButton *duplicateButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     duplicateButton.frame = CGRectMake(0, 340, self.tableView.frame.size.width, 30);
     duplicateButton.autoresizingMask = emptyListLabel.autoresizingMask;
-    [duplicateButton setTitle:@"Import existing list" forState:UIControlStateNormal];
+    [duplicateButton setTitle:@"Import existing quotation" forState:UIControlStateNormal];
     [duplicateButton addTarget:self action:@selector(selectListToDuplicate:) forControlEvents:UIControlEventTouchDown];
 
     [self.emptyView addSubview:emptyListLabel];
@@ -147,11 +148,12 @@
         
         self.swipeHelpViewLabel = [[UILabel alloc] init];
         UILabel* helpText = self.swipeHelpViewLabel;
-        helpText.text = @"Swipe right to (un)mark items as purchased";
+        helpText.text = @"swipe right to change the quantity, swipe left to delete";
         helpText.textAlignment = NSTextAlignmentCenter;
         helpText.numberOfLines = 0;
         helpText.lineBreakMode = NSLineBreakByWordWrapping;
         helpText.font = [UIFont systemFontOfSize:12];
+        helpText.textColor = [UIColor colorWithWhite:1.0f alpha:1.0f];
         [helpView addSubview:helpText];
         
         [self.view.superview addSubview:helpView];
@@ -159,10 +161,10 @@
 
     }
     
-    int paddingY = 35;
+    int paddingY = 0;
     int width = self.view.superview.frame.size.width;
     int height = 50;
-    int y = CGRectGetMaxY(self.view.frame) - height - paddingY - 15;
+    int y = CGRectGetMaxY(self.view.frame) - height - paddingY;
     
     self.swipeHelpView.frame = CGRectMake(0,
                                 CGRectGetMaxY(self.view.frame),
@@ -206,54 +208,61 @@
 - (void)startShoppingTrip:(id)sender
 {
     // See if shopping trip already exists
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    /*NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"ShoppingTrip"
                                               inManagedObjectContext:self.managedObjectContext];
     NSPredicate *pred = [NSPredicate predicateWithFormat:@"list == %@", self.list];
     [fetchRequest setPredicate:pred];
     [fetchRequest setEntity:entity];
     
-    NSError *error;
+    
     NSArray *fetchedObjects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
     
-    ShoppingTrip *trip = nil;
-    // If a object was found, use it in the new item. If not, create it
+    // If an object was found, use it in the new item. If not, create it
     if ([fetchedObjects count] > 0) {
         NSLog(@"Shopping Trip already found. Using it...");
-        trip = [fetchedObjects objectAtIndex:0];
-    } else {
-        NSLog(@"Shopping trip not found. Creating...");
+        self.trip = [fetchedObjects objectAtIndex:0];
+    } else {*/
+        NSLog(@"Create shopping trip");
         
-        trip = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingTrip" inManagedObjectContext:self.managedObjectContext];
-        trip.list = self.list;
-        trip.date = [NSDate date];
+        self.trip = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingTrip" inManagedObjectContext:self.managedObjectContext];
+        self.trip.list = self.list;
+        self.trip.date = [NSDate date];
         
         for (ShoppingItem* item in self.list.products) {
             ShoppingTripItem* tripItem = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingTripItem" inManagedObjectContext:self.managedObjectContext];
             tripItem.product = item.product;
             tripItem.quantity = item.quantity;
-            tripItem.purchasedQuantity = item.quantity;
-            tripItem.bought = NO;
+            tripItem.purchasedQuantity = item.purchasedQuantity;
+            tripItem.bought = item.bought;
             tripItem.date = item.date;
-            tripItem.price = [NSNumber numberWithFloat:0.0f];
-            tripItem.trip = trip;
+            tripItem.price = item.price;
+            tripItem.trip = self.trip;
+            tripItem.myPrice = item.price;
         }
         
-    }
-    
+    //}
+    NSError *error;
     if (![self.managedObjectContext save:&error]) {
         NSLog(@"Error saving context: %@", [error localizedDescription]);
     } else {
-        TripViewController* tripViewController = [[TripViewController alloc] initWithTrip:trip andSharedContext:self.managedObjectContext];
-        tripViewController.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:tripViewController animated:YES];
+        TripViewController* tripViewController = [[TripViewController alloc] initWithTrip:self.trip andSharedContext:self.managedObjectContext];
+        //tripViewController.hidesBottomBarWhenPushed = YES;
+        
+        /*[UIView transitionWithView:self.navigationController.view
+                          duration:0.5
+                           options:UIViewAnimationOptionTransitionCrossDissolve
+                        animations:^{
+                            [self.navigationController pushViewController:tripViewController animated:NO];                        }
+                        completion:nil];*/
+        [self.navigationController pushViewController:tripViewController animated:NO];
     }
 
 }
 
 - (IBAction)didTapTitle:(id)sender
 {
-    alert = [[UIAlertView alloc] initWithTitle:@"Rename list" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Save", nil];
+    alert = [[UIAlertView alloc] initWithTitle:@"Rename" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Save", nil];
     alert.alertViewStyle = UIAlertViewStylePlainTextInput;
     alert.tag = TAG_EDIT_LIST_TITLE;
     UITextField *tf = [alert textFieldAtIndex:0];
@@ -281,20 +290,23 @@
         [newItem setProduct:item.product];
         [newItem setInList:self.list];
         [newItem setQuantity:item.quantity];
-        [newItem setBought:NO];
+        [newItem setPurchasedQuantity:item.purchasedQuantity];
+        [newItem setPrice:item.price];
+        [newItem setBought:item.bought];
+        [newItem setDate:item.date];
     }
     
     NSError *error;
     if (![self.managedObjectContext save:&error]) {
         NSLog(@"Error saving context: %@", [error localizedDescription]);
         alert = [[UIAlertView alloc] initWithTitle:@"Error"
-                                           message:@"There was an error importing the list."
+                                           message:@"There was an error importing the quotation."
                                           delegate:self
                                  cancelButtonTitle:@"OK"
                                  otherButtonTitles:nil];
         [alert show];
     } else {
-        NSLog(@"List imported");
+        NSLog(@"Quotation imported");
         [[NSNotificationCenter defaultCenter] postNotificationName:@"ShoppingListDidChangeNotification" object:self];
     }
 
@@ -302,7 +314,7 @@
 
 - (void)updateProductList:(NSNotification *)notification
 {
-    NSLog(@"List received update");
+    NSLog(@"Quotation received update");
     self.items = [[self.list.products allObjects] mutableCopy];
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
     [self.items sortUsingDescriptors:@[sortDescriptor]];
@@ -312,12 +324,10 @@
     
     if (![self.items count]) {
         self.view = self.emptyView;
-        self.navigationItem.rightBarButtonItem = nil;
     } else {
         self.view = self.normalView;
         
-        // TODO correct barbuttonitem
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemPlay target:self action:@selector(startShoppingTrip:)];
+        //self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(editButtonResponder:)];
     }
 }
 
@@ -326,7 +336,7 @@
     editingIndexPath = indexPath;
     ShoppingItem* item = [self.items objectAtIndex:[indexPath row]];
     
-    NSString* msg = [NSString stringWithFormat:@"Are you sure your want to remove %@ from the list?", item.product.name];
+    NSString* msg = [NSString stringWithFormat:@"Sure to remove %@ from the quotation?", item.product.name];
     
     alert = [[UIAlertView alloc] initWithTitle:@"Delete?"
                                                         message:msg
@@ -371,10 +381,10 @@
         switch (state) {
             case MOOPullActive:
             case MOOPullTriggered:
-                cell.textLabel.text = @"Release to add item";
+                cell.textLabel.text = @"Release to add product";
                 break;
             case MOOPullIdle:
-                cell.textLabel.text = @"Pull to add item";
+                cell.textLabel.text = @"Pull to add product";
                 break;
                 
         }
@@ -408,7 +418,7 @@
     
     ShoppingItem* newItem = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingItem" inManagedObjectContext:self.managedObjectContext];
     [newItem setProduct:nil];
-    [newItem setQuantity:[NSNumber numberWithInt:1]];
+    [newItem setPurchasedQuantity:[NSNumber numberWithInt:1]];
     [newItem setInList:self.list];
     [newItem setDate:[NSDate date]];
     
@@ -503,11 +513,14 @@
     
     
     cell.textLabel.text = item.product.name;
-    if ([item.quantity intValue] > 1) {
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"%dx", [item.quantity intValue]];
-    } else {
-        cell.detailTextLabel.text = @"";
-    }
+    cell.textLabel.font = [UIFont systemFontOfSize:15];
+    //if ([item.quantity intValue] > 1) {
+    //TODO
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%dx", [item.purchasedQuantity intValue]];
+        cell.detailTextLabel.font = [UIFont systemFontOfSize:15];
+    //} else {
+      //  cell.detailTextLabel.text = @"";
+    //}
     
     
     UIView* changeQuantityView = [self viewWithImageName:@"db"];
@@ -531,7 +544,7 @@
     ShoppingItem *item = [self.items objectAtIndex:[indexPath row]];
     editingIndexPath = indexPath;
     
-    alert = [[UIAlertView alloc] initWithTitle:@"Edit amount" message:[NSString stringWithFormat:@"Enter the quantity for '%@'", item.product.name] delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Update", nil];
+    alert = [[UIAlertView alloc] initWithTitle:@"Edit quantity" message:[NSString stringWithFormat:@"Enter the quantity for '%@'", item.product.name] delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Update", nil];
     alert.alertViewStyle = UIAlertViewStylePlainTextInput;
     alert.tag = TAG_EDIT_QUANTITY;
     UITextField *tf = [alert textFieldAtIndex:0];
@@ -549,8 +562,8 @@
         ShoppingItem *editingItem = [self.items objectAtIndex:[editingIndexPath row]];
         float newQuantity = [[[alertView textFieldAtIndex:0] text] floatValue];
         if (buttonIndex > 0 && newQuantity > 0) {
-            editingItem.quantity = [NSNumber numberWithFloat:newQuantity];
-            NSLog(@"Updated quantity for item %@", editingItem.product.name);
+            editingItem.purchasedQuantity = [NSNumber numberWithFloat:newQuantity];
+            NSLog(@"Updated quantity for %@", editingItem.product.name);
         }
     } else if (alertView.tag == TAG_EDIT_LIST_TITLE) {
         NSString *newName = [[alertView textFieldAtIndex:0] text];
@@ -567,6 +580,7 @@
             }];
         } else {
             [self deleteRow:editingIndexPath];
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"ShoppingListDidChangeNotification" object:self];
             editingIndexPath = nil;
             return;
         }
@@ -576,13 +590,13 @@
     if (![self.managedObjectContext save:&error]) {
         NSLog(@"Error saving context: %@", [error localizedDescription]);
         alert = [[UIAlertView alloc] initWithTitle:@"Error"
-                                           message:@"There was an error updating the list."
+                                           message:@"There was an error updating the quotation."
                                           delegate:self
                                  cancelButtonTitle:@"OK"
                                  otherButtonTitles:nil];
         [alert show];
     } else {
-        NSLog(@"List updated");
+        NSLog(@"Quotation updated");
         [self.tableView reloadData];
         editingIndexPath = nil;
     }
@@ -606,7 +620,7 @@
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     NSError *error;
-    NSString* txt = textField.text;
+    NSString* txt = [textField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     
     if (textField.tag == TAG_NEW_ITEM) {
         ShoppingItem* editingItem = [self.items objectAtIndex:[editingIndexPath row]];
@@ -624,15 +638,34 @@
             
             NSArray *fetchedObjects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
             
-            // If a object was found, use it in the new item. If not, create it
+            // If an object was found, use it in the new item. If not, create it
             if ([fetchedObjects count] > 0) {
                 NSLog(@"Product %@ found. Using it...", txt);
-                [editingItem setProduct:[fetchedObjects objectAtIndex:0]];
-            } else {
-                NSLog(@"Product not found. Creating %@...", txt);
-                Product* newProduct = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
-                [newProduct setName:txt];
+                Product *newProduct = [fetchedObjects objectAtIndex:0];
                 [editingItem setProduct:newProduct];
+                [editingItem setInList:self.list];
+                [editingItem setPrice:newProduct.price];
+                [editingItem setQuantity:newProduct.stock];
+                [editingItem setPurchasedQuantity: [[NSNumber alloc] initWithDouble:1.0]];
+                [editingItem setDate:[NSDate date]];
+                [editingItem setBought:[[NSNumber alloc] initWithBool:YES]];                
+            } else {
+                NSLog(@"Product not found.");
+                //Product* newProduct = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
+                //[newProduct setName:txt];
+                //[editingItem setProduct:newProduct];
+                
+                alert = [[UIAlertView alloc]
+                                initWithTitle:@"Unknown product"
+                                message:[NSString stringWithFormat:@"Couldn't find '%@', you can only add products that already exist",txt]
+                                delegate:self
+                                cancelButtonTitle:@"OK"
+                                otherButtonTitles:nil, nil];
+                [alert show];
+                
+                [self.managedObjectContext deleteObject:editingItem];
+                [self.items removeObject:editingItem];
+                [self.tableView deleteRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationFade];
             }
             
             [self.tableView reloadRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationFade];

@@ -69,7 +69,7 @@
     editingIndexPath = indexPath;
     ShoppingList* list = [self.lists objectAtIndex:[indexPath row]];
     
-    NSString* msg = [NSString stringWithFormat:@"Are you sure your want to delete the list %@?", list.name];
+    NSString* msg = [NSString stringWithFormat:@"Sure to delete %@?", list.name];
     
     alert = [[UIAlertView alloc] initWithTitle:@"Delete?"
                                        message:msg
@@ -207,7 +207,7 @@
     self = [super initWithStyle:style];
     if (self) {
         // Custom initialization
-        self.title = @"Shopping lists";
+        self.title = @"Sales Quotations";
     }
     return self;
 }
@@ -239,10 +239,10 @@
         switch (state) {
             case MOOPullActive:
             case MOOPullTriggered:
-                cell.textLabel.text = @"Release to create list";
+                cell.textLabel.text = @"Release to create";
                 break;
             case MOOPullIdle:
-                cell.textLabel.text = @"Pull to create list";
+                cell.textLabel.text = @"Pull to create";
                 break;
                 
         }
@@ -305,7 +305,7 @@
     ListViewController *listViewController = [[ListViewController alloc] initWithList:list andSharedContext:self.managedObjectContext andLists:self.lists];
     
     UIBarButtonItem *newBackButton =
-    [[UIBarButtonItem alloc] initWithTitle:@"Lists"
+    [[UIBarButtonItem alloc] initWithTitle:@"Back"
                                      style:UIBarButtonItemStyleBordered
                                     target:nil
                                     action:nil];
@@ -337,8 +337,8 @@
                                           initWithTitle:nil
                                           delegate:self
                                           cancelButtonTitle:@"Cancel"
-                                          destructiveButtonTitle:@"Delete list"
-                                          otherButtonTitles:@"Rename list", nil];
+                                          destructiveButtonTitle:@"Delete"
+                                          otherButtonTitles:@"Rename", nil];
             actionSheet.tag = 1;
             [actionSheet showInView:self.view];
         }
@@ -358,7 +358,7 @@
                 case 1:
                     // rename
                     
-                    alert = [[UIAlertView alloc] initWithTitle:@"Rename list" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Save", nil];
+                    alert = [[UIAlertView alloc] initWithTitle:@"Rename" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Save", nil];
                     alert.alertViewStyle = UIAlertViewStylePlainTextInput;
                     alert.tag = TAG_RENAME_LIST;
                     [[alert textFieldAtIndex:0] setDelegate:self];
@@ -424,7 +424,7 @@
 	CGRect rect = CGRectInset(bounds, 20.0, 10.0);
     UITextField* tf = [[UITextField alloc] initWithFrame:rect];
     
-    tf.placeholder = @"List name";
+    tf.placeholder = @"Title";
     tf.delegate = self;
     tf.tag = TAG_NEW_LIST;
     tf.font = [UIFont boldSystemFontOfSize:17];

@@ -14,8 +14,8 @@
 
 @interface ShoppingTripItem : ShoppingItem
 
-@property (nonatomic, retain) NSNumber * price;
-@property (nonatomic, retain) NSNumber * purchasedQuantity;
+@property (nonatomic, retain) NSNumber * myPrice;
+//@property (nonatomic, retain) NSNumber * myPurchasedQuantity;
 @property (nonatomic, retain) ShoppingTrip *trip;
 
 @end

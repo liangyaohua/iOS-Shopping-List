@@ -11,6 +11,7 @@
 #import "SelectListViewController.h"
 #import "ShoppingList.h"
 #import "MCSwipeTableViewCell.h"
+#import "ShoppingTrip.h"
 
 @class MOOPullGestureRecognizer;
 @class ProductHTAutocompleteManager;
@@ -24,6 +25,7 @@
 
 @property NSArray *lists;
 @property ShoppingList* list;
+@property ShoppingTrip *trip;
 @property NSMutableArray* items;
 @property NSManagedObjectContext *managedObjectContext;
 @property UIView* normalView;

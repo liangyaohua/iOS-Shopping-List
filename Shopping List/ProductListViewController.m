@@ -42,6 +42,7 @@
     NSManagedObjectContext *context = [self managedObjectContext];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"Product" inManagedObjectContext:context];
+    
     NSError *error;
     
     [fetchRequest setEntity:entity];
@@ -105,6 +106,9 @@
         Product *p = [self.products objectAtIndex:[indexPath row]];
         
         cell.textLabel.text = p.name;
+        cell.textLabel.font = [UIFont systemFontOfSize:15];
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%@x $%@", p.stock, p.price];
+        cell.detailTextLabel.font = [UIFont systemFontOfSize:15];
         
         // Remove inset of iOS 7 separators.
         if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
@@ -118,7 +122,7 @@
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return YES;
+    return NO;
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath

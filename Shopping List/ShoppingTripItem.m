@@ -12,8 +12,8 @@
 
 @implementation ShoppingTripItem
 
-@dynamic price;
-@dynamic purchasedQuantity;
+@dynamic myPrice;
+//@dynamic myPurchasedQuantity;
 @dynamic trip;
 
 @end

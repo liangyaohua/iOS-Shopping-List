@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5063" systemVersion="13C64" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="13A603" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Product" representedClassName="Product" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="price" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="stock" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <relationship name="inItem" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ShoppingItem" inverseName="product" inverseEntity="ShoppingItem" syncable="YES"/>
     </entity>
     <entity name="ShoppingItem" representedClassName="ShoppingItem" syncable="YES">
-        <attribute name="bought" optional="YES" attributeType="Float" syncable="YES"/>
+        <attribute name="bought" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
-        <attribute name="quantity" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="price" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="purchasedQuantity" optional="YES" attributeType="Integer 16" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="quantity" optional="YES" attributeType="Integer 16" defaultValueString="0.0" syncable="YES"/>
         <relationship name="inList" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ShoppingList" inverseName="products" inverseEntity="ShoppingList" syncable="YES"/>
         <relationship name="product" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Product" inverseName="inItem" inverseEntity="Product" syncable="YES"/>
     </entity>
@@ -23,15 +27,14 @@
         <relationship name="list" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ShoppingList" inverseName="trips" inverseEntity="ShoppingList" syncable="YES"/>
     </entity>
     <entity name="ShoppingTripItem" representedClassName="ShoppingTripItem" parentEntity="ShoppingItem" syncable="YES">
-        <attribute name="price" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
-        <attribute name="purchasedQuantity" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="myPrice" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <relationship name="trip" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ShoppingTrip" inverseName="items" inverseEntity="ShoppingTrip" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Product" positionX="0" positionY="0" width="128" height="75"/>
-        <element name="ShoppingItem" positionX="0" positionY="0" width="128" height="120"/>
-        <element name="ShoppingList" positionX="0" positionY="0" width="128" height="105"/>
-        <element name="ShoppingTrip" positionX="0" positionY="0" width="128" height="88"/>
-        <element name="ShoppingTripItem" positionX="0" positionY="0" width="128" height="90"/>
+        <element name="Product" positionX="-315" positionY="-153" width="128" height="103"/>
+        <element name="ShoppingItem" positionX="0" positionY="0" width="128" height="148"/>
+        <element name="ShoppingList" positionX="-153" positionY="-162" width="128" height="105"/>
+        <element name="ShoppingTrip" positionX="-180" positionY="-315" width="128" height="88"/>
+        <element name="ShoppingTripItem" positionX="70" positionY="-252" width="128" height="73"/>
     </elements>
 </model>

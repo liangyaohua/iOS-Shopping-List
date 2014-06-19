@@ -28,7 +28,19 @@
         
         [self loadItems:self];
         
-        self.title = trip.list.name;
+        self.title = @"Price";
+        self.titleButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+        [self.titleButton setTitle:@"Price" forState:UIControlStateNormal];
+        [self.titleButton.titleLabel setFont:[UIFont boldSystemFontOfSize:18]];
+        [self.titleButton addTarget:self action:@selector(backToPrevious) forControlEvents:UIControlEventTouchUpInside];
+        self.navigationItem.titleView = self.titleButton;
+        
+        [[self navigationItem] setHidesBackButton:YES];
+        
+        if ([self.trip.list.products count]) {
+            //TODO add email action
+            self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:nil];
+        }
         
         self.tableView = [[UITableView alloc] initWithFrame:self.view.frame];
         self.tableView.delegate = self;
@@ -36,7 +48,6 @@
         self.tableView.rowHeight = 50;
         self.tableView.autoresizingMask = AUTORESIZE_ALL;
         [self.view addSubview:self.tableView];
-        
         editingIndexPath = nil;
         
         UIView *backgroundView = [[UIView alloc] initWithFrame:self.tableView.frame];
@@ -49,7 +60,7 @@
         blackView.autoresizingMask = AUTORESIZE_ALL;
         [self.view addSubview:blackView];
         [self.view bringSubviewToFront:blackView];
-        
+    
         [self renderTotalPriceView];
                 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProductList:) name:@"ProductListDidChangeNotification" object:nil];
@@ -96,13 +107,25 @@
     }
 }
 
+- (void)backToPrevious
+{
+    /*[UIView transitionWithView:self.navigationController.view
+                      duration:0.5
+                       options:UIViewAnimationOptionTransitionCrossDissolve
+                    animations:^{
+                        [self.navigationController popViewControllerAnimated:NO];
+                    }
+                    completion:nil];*/
+    [self.navigationController popViewControllerAnimated:NO];
+}
+
 - (void)renderTotalPriceView
 {
     if (totalPriceView == nil) {
         totalPriceView = [[UIView alloc] init];
         int height = 50;
         int y = self.view.frame.size.height - height;
-        NSLog(@"y = %d", y);
+        NSLog(@"total = %d", y);
         totalPriceView.frame = CGRectMake(0,
                                           y,
                                           self.view.frame.size.width,
@@ -113,8 +136,8 @@
         
         totalLabel = [[UILabel alloc] init];
         totalLabel.text = @"Total:";
-        totalLabel.font = [UIFont systemFontOfSize:13];
-        totalLabel.textColor = [UIColor lightTextColor];
+        totalLabel.font = [UIFont boldSystemFontOfSize:20];
+        totalLabel.textColor = [UIColor whiteColor];
         totalLabel.frame = CGRectMake(5, 0, 50, height);
         [totalPriceView addSubview:totalLabel];
         
@@ -142,7 +165,7 @@
             total += [item.purchasedQuantity floatValue] * [item.price floatValue];
     }
     
-    totalPriceLabel.text = [NSString stringWithFormat:@"£%.2f", total];
+    totalPriceLabel.text = [NSString stringWithFormat:@"$%.2f", total];
     NSLog(@"Total price calculated as %.2f", total);
 }
 
@@ -166,11 +189,11 @@
         
         prodLabel = [[UILabel alloc] init];
         prodLabel.textAlignment = NSTextAlignmentCenter;
-        prodLabel.font = [UIFont boldSystemFontOfSize:20];
+        prodLabel.font = [UIFont boldSystemFontOfSize:15];
         [modalView addSubview:prodLabel];
         
         prodLabel2 = [[UILabel alloc] init];
-        prodLabel2.text = @"Quantity on list:";
+        prodLabel2.text = @"Quantity in stock:";
         prodLabel2.font = [UIFont systemFontOfSize:15];
         [modalView addSubview:prodLabel2];
         
@@ -255,6 +278,7 @@
     
     prodLabel.text = item.product.name;
     quantityTextfield.text = [NSString stringWithFormat:@"%d", [item.quantity intValue]];
+    //TODO
     purchasedQuantityTextfield.text = [NSString stringWithFormat:@"%d", [item.purchasedQuantity intValue]];
     if ([item.price floatValue] > 0.0f)
         priceTextField.text = [NSString stringWithFormat:@"%.2f", [item.price floatValue]];
@@ -296,8 +320,6 @@
         [self.tableView reloadRowsAtIndexPaths:@[editingIndexPath] withRowAnimation:UITableViewRowAnimationFade];
         [self updateTotalPriceLabel];
         editingIndexPath = nil;
-        
-
     }
     
     [self dismissKeyboard];
@@ -327,7 +349,7 @@
     
     [self.tableView reloadData];
     
-    self.title = self.trip.list.name;
+    //self.title = self.trip.list.name;
 }
 
 - (void)viewDidLoad
@@ -378,21 +400,23 @@
         attributeString = [[NSMutableAttributedString alloc] init];
     }
     
-    if (![item.bought boolValue]) {
-        cell.textLabel.alpha = 1.0;
-        if ([item.quantity intValue] > 1)
-            cell.detailTextLabel.text = [NSString stringWithFormat:@"%dx", [item.quantity intValue]];
-    } else {
-        cell.textLabel.alpha = 0.3;
-        
+    //if (![item.bought boolValue]) {
+        //cell.textLabel.alpha = 1.0;
+     //   if ([item.purchasedQuantity intValue] > 1)
+     //       cell.detailTextLabel.text = [NSString stringWithFormat:@"%dx", [item.quantity intValue]];
+    //} else {
+      //  cell.textLabel.alpha = 0.3;
+
         int quant = [item.purchasedQuantity intValue];
         float price = [item.price floatValue];
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"%d £%.2f", quant, quant*price];
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"$%.2f", quant*price];
+        cell.detailTextLabel.font = [UIFont systemFontOfSize:15];
+        cell.textLabel.font = [UIFont systemFontOfSize:15];
         
-        [attributeString addAttribute:NSStrikethroughStyleAttributeName
-                                value:@1
-                                range:NSMakeRange(0, [attributeString length])];
-    }
+        //[attributeString addAttribute:NSStrikethroughStyleAttributeName
+          //                      value:@1
+            //                    range:NSMakeRange(0, [attributeString length])];
+    //}
     
     cell.textLabel.attributedText = attributeString;
     
@@ -415,7 +439,7 @@
         ShoppingItem *editingItem = [self.items objectAtIndex:[editingIndexPath row]];
         float newQuantity = [[[alertView textFieldAtIndex:0] text] floatValue];
         if (buttonIndex > 0 && newQuantity > 0) {
-            editingItem.quantity = [NSNumber numberWithFloat:newQuantity];
+            editingItem.purchasedQuantity = [NSNumber numberWithFloat:newQuantity];
         }
     } else if (alertView.tag == 2) {
         NSString *newName = [[alertView textFieldAtIndex:0] text];

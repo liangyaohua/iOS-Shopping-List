@@ -34,6 +34,7 @@
 @property ShoppingTrip* trip;
 @property NSArray* allItems;
 @property NSArray* items;
+@property UIButton* titleButton;
 
 - (id)initWithTrip:(ShoppingTrip *)trip andSharedContext:(NSManagedObjectContext *)context;
 

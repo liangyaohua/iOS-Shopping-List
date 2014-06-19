@@ -16,6 +16,8 @@
 @dynamic bought;
 @dynamic date;
 @dynamic quantity;
+@dynamic purchasedQuantity;
+@dynamic price;
 @dynamic inList;
 @dynamic product;
 

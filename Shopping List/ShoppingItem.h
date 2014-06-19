@@ -16,6 +16,8 @@
 @property (nonatomic, retain) NSNumber * bought;
 @property (nonatomic, retain) NSDate * date;
 @property (nonatomic, retain) NSNumber * quantity;
+@property (nonatomic, retain) NSNumber * purchasedQuantity;
+@property (nonatomic, retain) NSNumber * price;
 @property (nonatomic, retain) ShoppingList *inList;
 @property (nonatomic, retain) Product *product;
 

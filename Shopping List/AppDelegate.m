@@ -19,9 +19,11 @@
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
+@synthesize productsArray = _productsArray;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    _productsArray = [self simpleJsonParsing];
     [self seedExampleData];
     
     ProductListViewController *productListViewController = [[ProductListViewController alloc] initWithSharedContext:self.managedObjectContext];
@@ -38,8 +40,7 @@
     
     UITabBarController *tabBarController = [[UITabBarController alloc] init];
     [tabBarController setViewControllers:@[shoppingListNavigationController,
-                                           productListNavigationController,
-                                           preferencesNavigationController]];
+                                           productListNavigationController]];
     
     UIColor *orange = [UIColor colorWithRed:1.0 green:0.51 blue:0.0 alpha:1.0];
     
@@ -67,6 +68,27 @@
     return YES;
 }
 
+- (NSMutableArray*)simpleJsonParsing
+{
+    //-- Make URL request with server
+    NSHTTPURLResponse *response = nil;
+    NSString *jsonUrlString = [NSString stringWithFormat:@"http://services.odata.org/V4/Northwind/Northwind.svc/Products?$select=ProductID,ProductName,UnitPrice,UnitsInStock"];
+    NSURL *url = [NSURL URLWithString:[jsonUrlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    
+    //-- Get request and response though URL
+    NSURLRequest *request = [[NSURLRequest alloc]initWithURL:url];
+    NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:nil];
+    
+    //-- JSON Parsing
+    NSMutableArray *result = [NSJSONSerialization JSONObjectWithData:responseData options:NSJSONReadingMutableContainers error:nil];
+    //NSLog(@"Result = %@",result);
+    
+    NSMutableArray *value = [result valueForKey:@"value"];
+    //NSLog(@"Value = %@",value);
+    
+    return value;
+}
+
 - (void)seedExampleData
 {
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
@@ -75,30 +97,29 @@
         NSLog(@"Application does not have data. Seeding with example data");
         
         NSMutableArray *products = [[NSMutableArray alloc] init];
-        Product *coke = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
-        [coke setName:@"Coke"];
-        [products addObject:coke];
-        Product *milk = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
-        [milk setName:@"Milk"];
-        [products addObject:milk];
-        Product *eggs = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
-        [eggs setName:@"Eggs"];
-        [products addObject:eggs];
-        Product *bread = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
-        [bread setName:@"Bread"];
-        [products addObject:bread];
+        int i = 0;
+        for (; i < [_productsArray count]; i++) {
+            Product *item = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
+            [item setName:[[_productsArray objectAtIndex:i] valueForKey:@"ProductName"]];
+            [item setPrice:[[_productsArray objectAtIndex:i] valueForKey:@"UnitPrice"]];
+            [item setStock:[[_productsArray objectAtIndex:i] valueForKey:@"UnitsInStock"]];
+            [products addObject:item];
+        }
         
         ShoppingList *list = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingList" inManagedObjectContext:self.managedObjectContext];
-        [list setName:@"Example list"];
+        [list setName:@"Example"];
         [list setDate:[NSDate date]];
         
-        int i = 1;
+        i = 1;
         for (Product *p in products) {
             ShoppingItem *item = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingItem" inManagedObjectContext:self.managedObjectContext];
             [item setProduct:p];
             [item setInList:list];
-            [item setQuantity:[NSNumber numberWithInt:i]];
+            [item setQuantity:p.stock];
+            [item setPurchasedQuantity: [[NSNumber alloc] initWithDouble:1.0]];
+            [item setPrice:p.price];
             [item setDate:[NSDate date]];
+            [item setBought:[[NSNumber alloc] initWithBool:YES]];
             i++;
         }
 

@@ -15,6 +15,9 @@
 
 @property (nonatomic, retain) NSString * name;
 @property (nonatomic, retain) NSSet *inItem;
+@property (nonatomic, retain) NSNumber * price;
+@property (nonatomic, retain) NSNumber * stock;
+
 @end
 
 @interface Product (CoreDataGeneratedAccessors)
