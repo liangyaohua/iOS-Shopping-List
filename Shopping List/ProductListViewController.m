@@ -3,6 +3,8 @@
 //  Shopping List
 //
 //  Created by Mario Cecchi on 2/6/14.
+//  Reviewed by Yaohua Liang on 23/06/14.
+//
 //  Copyright (c) 2014 Mario Cecchi. All rights reserved.
 //
 
@@ -22,18 +24,19 @@
     if (self) {
         self.managedObjectContext = context;
         
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(updateProductList)];
         self.tableView.rowHeight = 50;
         
         [self loadProducts];
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProductList:) name:@"ProductListDidChangeNotification" object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(listsDidChange:) name:@"ShoppingListDidChangeNotification" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProductList) name:@"ProductListDidChangeNotification" object:nil];
+        //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(listsDidChange:) name:@"ShoppingListDidChangeNotification" object:nil];
     }
     return self;
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ShoppingListDidChangeNotification" object:nil];
+    //[[NSNotificationCenter defaultCenter] removeObserver:self name:@"ShoppingListDidChangeNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ProductListDidChangeNotification" object:nil];
 }
 
@@ -51,14 +54,16 @@
     self.products = [[context executeFetchRequest:fetchRequest error:&error] mutableCopy];
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
     [self.products sortUsingDescriptors:@[sortDescriptor]];
+    //NSLog(@"Products loaded");
 }
 
-- (void)updateProductList:(NSNotification *)notification
+- (void)updateProductList
 {
-    if (notification.object != self) {
+    //if (notification.object != self) {
         [self loadProducts];
         [self.tableView reloadData];
-    }
+    //NSLog(@"Products updated");
+    //}
 }
 
 - (void)listsDidChange:(id)sender

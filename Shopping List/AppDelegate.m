@@ -3,6 +3,8 @@
 //  Shopping List
 //
 //  Created by Mario Cecchi on 2/6/14.
+//  Reviewed by Yaohua Liang on 23/06/14.
+//
 //  Copyright (c) 2014 Mario Cecchi. All rights reserved.
 //
 
@@ -19,11 +21,9 @@
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
-@synthesize productsArray = _productsArray;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    _productsArray = [self simpleJsonParsing];
     [self seedExampleData];
     
     ProductListViewController *productListViewController = [[ProductListViewController alloc] initWithSharedContext:self.managedObjectContext];
@@ -91,6 +91,8 @@
 
 - (void)seedExampleData
 {
+    NSMutableArray *productsArray = [self simpleJsonParsing];
+
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
     
     if (![ud boolForKey:@"ShoppingListUserDefaultsExampleData"]) {
@@ -98,11 +100,11 @@
         
         NSMutableArray *products = [[NSMutableArray alloc] init];
         int i = 0;
-        for (; i < [_productsArray count]; i++) {
+        for (; i < [productsArray count]; i++) {
             Product *item = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
-            [item setName:[[_productsArray objectAtIndex:i] valueForKey:@"ProductName"]];
-            [item setPrice:[[_productsArray objectAtIndex:i] valueForKey:@"UnitPrice"]];
-            [item setStock:[[_productsArray objectAtIndex:i] valueForKey:@"UnitsInStock"]];
+            [item setName:[[productsArray objectAtIndex:i] valueForKey:@"ProductName"]];
+            [item setPrice:[[productsArray objectAtIndex:i] valueForKey:@"UnitPrice"]];
+            [item setStock:[[productsArray objectAtIndex:i] valueForKey:@"UnitsInStock"]];
             [products addObject:item];
         }
         
@@ -116,7 +118,7 @@
             [item setProduct:p];
             [item setInList:list];
             [item setQuantity:p.stock];
-            [item setPurchasedQuantity: [[NSNumber alloc] initWithDouble:1.0]];
+            [item setPurchasedQuantity: [[NSNumber alloc] initWithInt:1]];
             [item setPrice:p.price];
             [item setDate:[NSDate date]];
             [item setBought:[[NSNumber alloc] initWithBool:YES]];

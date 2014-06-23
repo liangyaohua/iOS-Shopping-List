@@ -3,6 +3,8 @@
 //  Shopping List
 //
 //  Created by Mario Cecchi on 2/10/14.
+//  Reviewed by Yaohua Liang on 23/06/14.
+//
 //  Copyright (c) 2014 Mario Cecchi. All rights reserved.
 //
 
@@ -39,7 +41,7 @@
         
         if ([self.trip.list.products count]) {
             //TODO add email action
-            self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:nil];
+            self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(sendEmail)];
         }
         
         self.tableView = [[UITableView alloc] initWithFrame:self.view.frame];
@@ -107,6 +109,25 @@
     }
 }
 
+- (void)sendEmail
+{
+    NSString *to = @"yaohua.liang@capgemini.com";
+    NSString *subject = [NSString stringWithFormat:@"Sales Quotation: %@", self.trip.list.name];
+    NSString *body = [NSString stringWithFormat:@"Here's the quotation for %@:\n\n", self.trip.list.name];
+    
+    for(ShoppingTripItem *item in self.trip.items) {
+        body = [body stringByAppendingString:[NSString stringWithFormat:@"%@x$%@\t%@\n", item.purchasedQuantity, item.myPrice, item.product.name]];
+    }
+    
+    body = [body stringByAppendingString:[NSString stringWithFormat:@"\nTotal: %0.2f", self.totalPrice]];
+    
+    NSString *mailString = [NSString stringWithFormat:@"mailto:?to=%@&subject=%@&body=%@",
+                            [to stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding],
+                            [subject stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding],
+                            [body stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:mailString]];
+}
+
 - (void)backToPrevious
 {
     /*[UIView transitionWithView:self.navigationController.view
@@ -142,7 +163,7 @@
         [totalPriceView addSubview:totalLabel];
         
         totalPriceLabel = [[UILabel alloc] init];
-        totalPriceLabel.font = [UIFont boldSystemFontOfSize:30];
+        totalPriceLabel.font = [UIFont boldSystemFontOfSize:25];
         totalPriceLabel.textAlignment = NSTextAlignmentRight;
         totalPriceLabel.textColor = [UIColor whiteColor];
         totalPriceLabel.frame = CGRectMake(5, 0, self.view.frame.size.width - 10, height);
@@ -159,13 +180,17 @@
 - (void)updateTotalPriceLabel
 {
     float total = 0.0f;
-    
+    float newTotal = 0.0f;
+
     for (ShoppingTripItem* item in self.allItems) {
         if ([item.bought boolValue] == YES)
             total += [item.purchasedQuantity floatValue] * [item.price floatValue];
+            newTotal += [item.purchasedQuantity floatValue] * [item.myPrice floatValue];
     }
     
-    totalPriceLabel.text = [NSString stringWithFormat:@"$%.2f", total];
+    self.totalPrice = newTotal;
+    
+    totalPriceLabel.text = [NSString stringWithFormat:@"$%.2f (%0.2f)", newTotal, (newTotal-total)];
     NSLog(@"Total price calculated as %.2f", total);
 }
 
@@ -207,7 +232,7 @@
 
         
         prodLabel3 = [[UILabel alloc] init];
-        prodLabel3.text = @"Purchased quantity:";
+        prodLabel3.text = @"Requested quantity:";
         prodLabel3.font = [UIFont systemFontOfSize:15];
         [modalView addSubview:prodLabel3];
         
@@ -225,12 +250,26 @@
         [modalView addSubview:prodLabel4];
         
         priceTextField = [[UITextField alloc] init];
-        priceTextField.keyboardType = UIKeyboardTypeDecimalPad;
+        //priceTextField.keyboardType = UIKeyboardTypeDecimalPad;
         priceTextField.textColor = self.view.superview.tintColor;
         priceTextField.backgroundColor = [UIColor colorWithWhite:0.98f alpha:1.0f];
         priceTextField.textAlignment = NSTextAlignmentCenter;
         priceTextField.layer.cornerRadius = 5.0f;
+        priceTextField.enabled = NO;
         [modalView addSubview:priceTextField];
+        
+        prodLabel5 = [[UILabel alloc] init];
+        prodLabel5.text = @"New price:";
+        prodLabel5.font = [UIFont systemFontOfSize:15];
+        [modalView addSubview:prodLabel5];
+        
+        myPriceTextField = [[UITextField alloc] init];
+        myPriceTextField.keyboardType = UIKeyboardTypeDecimalPad;
+        myPriceTextField.textColor = self.view.superview.tintColor;
+        myPriceTextField.backgroundColor = [UIColor colorWithWhite:0.98f alpha:1.0f];
+        myPriceTextField.textAlignment = NSTextAlignmentCenter;
+        myPriceTextField.layer.cornerRadius = 5.0f;
+        [modalView addSubview:myPriceTextField];
         
         purchaseButton = [[UIButton alloc] init];
         purchaseButton.titleLabel.font = [UIFont boldSystemFontOfSize:20];
@@ -262,26 +301,30 @@
     modalView.frame = CGRectMake(padding, padding*2, screenSize.size.width - 2*padding, screenSize.size.height - 2*4*padding);
     prodLabel.frame = CGRectMake(0, 5, screenSize.size.width - 2*padding, 50);
     prodLabel2.frame = CGRectMake(padding, 60, screenSize.size.width - 4*padding, 30);
-    quantityTextfield.frame = CGRectMake(180, 60, 75, 30);
+    quantityTextfield.frame = CGRectMake(screenSize.size.width - 3*padding - 75, 60, 75, 30);
     prodLabel3.frame = CGRectMake(padding, 95, screenSize.size.width - 4*padding, 30);
-    purchasedQuantityTextfield.frame = CGRectMake(180, 95, 75, 30);
+    purchasedQuantityTextfield.frame = CGRectMake(screenSize.size.width - 3*padding - 75, 95, 75, 30);
     prodLabel4.frame = CGRectMake(padding, 130, screenSize.size.width - 4*padding, 30);
-    priceTextField.frame = CGRectMake(180, 130, 75, 30);
+    priceTextField.frame = CGRectMake(screenSize.size.width - 3*padding - 75, 130, 75, 30);
+    prodLabel5.frame = CGRectMake(padding, 165, screenSize.size.width - 4*padding, 30);
+    myPriceTextField.frame = CGRectMake(screenSize.size.width - 3*padding - 75, 165, 75, 30);
     
-    if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationPortrait) {
-        purchaseButton.frame = CGRectMake(padding + 10, 200, screenSize.size.width - 4*padding - 2*10, 50);
-        cancelButton.frame = CGRectMake(padding + 10, 255, screenSize.size.width - 4*padding - 2*10, 35);
-    } else {
-        purchaseButton.frame = CGRectMake(modalView.frame.size.width/2, 50, screenSize.size.width - 4*padding - 2*10, 50);
-        cancelButton.frame = CGRectMake(modalView.frame.size.width/2, 105, screenSize.size.width - 4*padding - 2*10, 35);
-    }
+    //if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationPortrait) {
+        purchaseButton.frame = CGRectMake(padding + 10, 225, screenSize.size.width - 4*padding - 2*10, 50);
+        cancelButton.frame = CGRectMake(padding + 10, 280, screenSize.size.width - 4*padding - 2*10, 35);
+    //} else {
+      //  purchaseButton.frame = CGRectMake(modalView.frame.size.width/2, 50, screenSize.size.width - 4*padding - 2*10, 50);
+        //cancelButton.frame = CGRectMake(modalView.frame.size.width/2, 105, screenSize.size.width - 4*padding - 2*10, 35);
+    //}
     
     prodLabel.text = item.product.name;
     quantityTextfield.text = [NSString stringWithFormat:@"%d", [item.quantity intValue]];
     //TODO
     purchasedQuantityTextfield.text = [NSString stringWithFormat:@"%d", [item.purchasedQuantity intValue]];
-    if ([item.price floatValue] > 0.0f)
+    //if ([item.price floatValue] > 0.0f)
         priceTextField.text = [NSString stringWithFormat:@"%.2f", [item.price floatValue]];
+    if ([item.myPrice floatValue] > 0.0f)
+        myPriceTextField.text = [NSString stringWithFormat:@"%.2f", [item.myPrice floatValue]];
     [purchaseButton setTitle: ((![item.bought boolValue]) ? @"Purchase" : @"Update") forState:UIControlStateNormal];
     
     [UIView animateWithDuration:0.25
@@ -301,7 +344,7 @@
     ShoppingTripItem* item = [self.items objectAtIndex:[editingIndexPath row]];
     item.purchasedQuantity = [NSNumber numberWithInt:[purchasedQuantityTextfield.text intValue]];
     item.bought = (item.purchasedQuantity > 0) ? [NSNumber numberWithBool:YES] : [NSNumber numberWithBool:NO];
-    item.price = [NSNumber numberWithFloat:[priceTextField.text floatValue]];
+    item.myPrice = [NSNumber numberWithFloat:[myPriceTextField.text floatValue]];
     
     NSError* error;
     if (![self.managedObjectContext save:&error]) {
@@ -408,11 +451,18 @@
       //  cell.textLabel.alpha = 0.3;
 
         int quant = [item.purchasedQuantity intValue];
-        float price = [item.price floatValue];
+        float price = [item.myPrice floatValue];
         cell.detailTextLabel.text = [NSString stringWithFormat:@"$%.2f", quant*price];
         cell.detailTextLabel.font = [UIFont systemFontOfSize:15];
         cell.textLabel.font = [UIFont systemFontOfSize:15];
-        
+    
+    if ([item.price floatValue] > [item.myPrice floatValue]) {
+        cell.detailTextLabel.textColor = [UIColor redColor];
+    }
+    
+    if ([item.price floatValue] < [item.myPrice floatValue]) {
+        cell.detailTextLabel.textColor = [UIColor greenColor];
+    }
         //[attributeString addAttribute:NSStrikethroughStyleAttributeName
           //                      value:@1
             //                    range:NSMakeRange(0, [attributeString length])];
@@ -468,7 +518,7 @@
 
 - (void)dismissKeyboard {
     [purchasedQuantityTextfield resignFirstResponder];
-    [priceTextField resignFirstResponder];
+    [myPriceTextField resignFirstResponder];
 }
 
 @end

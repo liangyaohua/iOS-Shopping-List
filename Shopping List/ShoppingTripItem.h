@@ -3,6 +3,8 @@
 //  Shopping List
 //
 //  Created by Mario Cecchi on 3/22/14.
+//  Reviewed by Yaohua Liang on 23/06/14.
+//
 //  Copyright (c) 2014 Mario Cecchi. All rights reserved.
 //
 
@@ -15,7 +17,6 @@
 @interface ShoppingTripItem : ShoppingItem
 
 @property (nonatomic, retain) NSNumber * myPrice;
-//@property (nonatomic, retain) NSNumber * myPurchasedQuantity;
 @property (nonatomic, retain) ShoppingTrip *trip;
 
 @end

@@ -3,6 +3,8 @@
 //  Shopping List
 //
 //  Created by Mario Cecchi on 2/10/14.
+//  Reviewed by Yaohua Liang on 23/06/14.
+//
 //  Copyright (c) 2014 Mario Cecchi. All rights reserved.
 //
 
@@ -208,21 +210,38 @@
 - (void)startShoppingTrip:(id)sender
 {
     // See if shopping trip already exists
-    /*NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"ShoppingTrip"
                                               inManagedObjectContext:self.managedObjectContext];
     NSPredicate *pred = [NSPredicate predicateWithFormat:@"list == %@", self.list];
     [fetchRequest setPredicate:pred];
     [fetchRequest setEntity:entity];
-    
+    NSError *error;
     
     NSArray *fetchedObjects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
     
-    // If an object was found, use it in the new item. If not, create it
+    // TODO
     if ([fetchedObjects count] > 0) {
-        NSLog(@"Shopping Trip already found. Using it...");
-        self.trip = [fetchedObjects objectAtIndex:0];
-    } else {*/
+        NSLog(@"Shopping Trip already found, reset it");
+        
+        [self.managedObjectContext deleteObject:[fetchedObjects objectAtIndex:0]];
+        
+        self.trip = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingTrip" inManagedObjectContext:self.managedObjectContext];
+        self.trip.list = self.list;
+        self.trip.date = [NSDate date];
+        
+        for (ShoppingItem* item in self.list.products) {
+            ShoppingTripItem* tripItem = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingTripItem" inManagedObjectContext:self.managedObjectContext];
+            tripItem.product = item.product;
+            tripItem.quantity = item.quantity;
+            tripItem.purchasedQuantity = item.purchasedQuantity;
+            tripItem.bought = item.bought;
+            tripItem.date = item.date;
+            tripItem.price = item.price;
+            tripItem.trip = self.trip;
+            tripItem.myPrice = item.price;
+        }
+    } else {
         NSLog(@"Create shopping trip");
         
         self.trip = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingTrip" inManagedObjectContext:self.managedObjectContext];
@@ -241,8 +260,8 @@
             tripItem.myPrice = item.price;
         }
         
-    //}
-    NSError *error;
+    }
+    //NSError *error;
     if (![self.managedObjectContext save:&error]) {
         NSLog(@"Error saving context: %@", [error localizedDescription]);
     } else {
@@ -544,7 +563,7 @@
     ShoppingItem *item = [self.items objectAtIndex:[indexPath row]];
     editingIndexPath = indexPath;
     
-    alert = [[UIAlertView alloc] initWithTitle:@"Edit quantity" message:[NSString stringWithFormat:@"Enter the quantity for '%@'", item.product.name] delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Update", nil];
+    alert = [[UIAlertView alloc] initWithTitle:@"Edit quantity" message:[NSString stringWithFormat:@"There are %@ '%@' available in stock", item.quantity, item.product.name] delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Update", nil];
     alert.alertViewStyle = UIAlertViewStylePlainTextInput;
     alert.tag = TAG_EDIT_QUANTITY;
     UITextField *tf = [alert textFieldAtIndex:0];
@@ -552,7 +571,7 @@
     [tf setDelegate:self];
     [tf setKeyboardType:UIKeyboardTypeDecimalPad];
     [tf setReturnKeyType:UIReturnKeyDone];
-    [tf setPlaceholder:[item.quantity stringValue]];
+    [tf setPlaceholder:[item.purchasedQuantity stringValue]];
     [alert show];
 }
 
@@ -560,7 +579,7 @@
 {
     if (alertView.tag == TAG_EDIT_QUANTITY) {
         ShoppingItem *editingItem = [self.items objectAtIndex:[editingIndexPath row]];
-        float newQuantity = [[[alertView textFieldAtIndex:0] text] floatValue];
+        int newQuantity = [[[alertView textFieldAtIndex:0] text] intValue];
         if (buttonIndex > 0 && newQuantity > 0) {
             editingItem.purchasedQuantity = [NSNumber numberWithFloat:newQuantity];
             NSLog(@"Updated quantity for %@", editingItem.product.name);
@@ -646,7 +665,7 @@
                 [editingItem setInList:self.list];
                 [editingItem setPrice:newProduct.price];
                 [editingItem setQuantity:newProduct.stock];
-                [editingItem setPurchasedQuantity: [[NSNumber alloc] initWithDouble:1.0]];
+                [editingItem setPurchasedQuantity: [[NSNumber alloc] initWithInt:1]];
                 [editingItem setDate:[NSDate date]];
                 [editingItem setBought:[[NSNumber alloc] initWithBool:YES]];                
             } else {

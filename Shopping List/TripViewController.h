@@ -3,6 +3,8 @@
 //  Shopping List
 //
 //  Created by Mario Cecchi on 2/10/14.
+//  Reviewed by Yaohua Liang on 23/06/14.
+//
 //  Copyright (c) 2014 Mario Cecchi. All rights reserved.
 //
 
@@ -18,9 +20,11 @@
     UILabel* prodLabel2;
     UILabel* prodLabel3;
     UILabel* prodLabel4;
+    UILabel* prodLabel5;
     UITextField* quantityTextfield;
     UITextField* purchasedQuantityTextfield;
     UITextField* priceTextField;
+    UITextField* myPriceTextField;
     UIButton* purchaseButton;
     UIButton* cancelButton;
     UIView* totalPriceView;
@@ -35,6 +39,7 @@
 @property NSArray* allItems;
 @property NSArray* items;
 @property UIButton* titleButton;
+@property float totalPrice;
 
 - (id)initWithTrip:(ShoppingTrip *)trip andSharedContext:(NSManagedObjectContext *)context;
 

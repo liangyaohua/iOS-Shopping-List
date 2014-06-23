@@ -3,6 +3,8 @@
 //  Shopping List
 //
 //  Created by Mario Cecchi on 2/6/14.
+//  Reviewed by Yaohua Liang on 23/06/14.
+//
 //  Copyright (c) 2014 Mario Cecchi. All rights reserved.
 //
 
@@ -98,7 +100,8 @@
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     if (textField.tag == TAG_NEW_LIST) {
-        NSString* txt = textField.text;
+        NSString* txt = [textField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        
         ShoppingList* editingList = [self.lists objectAtIndex:[editingIndexPath row]];
         [textField removeFromSuperview];
         [textField resignFirstResponder];

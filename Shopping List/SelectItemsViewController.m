@@ -3,6 +3,8 @@
 //  Shopping List
 //
 //  Created by Mario Cecchi on 2/9/14.
+//  Reviewed by Yaohua Liang on 23/06/14.
+//
 //  Copyright (c) 2014 Mario Cecchi. All rights reserved.
 //
 
@@ -71,7 +73,7 @@
 {
     for (ShoppingItem *i in self.list.products) {
         if (i.product == p) {
-            return [i.quantity intValue];
+            return 1;
         }
     }
     return 0;
@@ -221,7 +223,7 @@
         [newItem setProduct:p];
         [newItem setInList:self.list];
         [newItem setQuantity:p.stock];
-        [newItem setPurchasedQuantity: [[NSNumber alloc] initWithDouble:1.0]];
+        [newItem setPurchasedQuantity: [[NSNumber alloc] initWithInt:1]];
         [newItem setPrice:p.price];
         [newItem setDate:[NSDate date]];
         [newItem setBought:[[NSNumber alloc] initWithBool:YES]];
