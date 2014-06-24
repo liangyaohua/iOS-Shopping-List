@@ -487,9 +487,9 @@
 {
     if (alertView.tag == 1) {
         ShoppingItem *editingItem = [self.items objectAtIndex:[editingIndexPath row]];
-        float newQuantity = [[[alertView textFieldAtIndex:0] text] floatValue];
+        int newQuantity = [[[alertView textFieldAtIndex:0] text] intValue];
         if (buttonIndex > 0 && newQuantity > 0) {
-            editingItem.purchasedQuantity = [NSNumber numberWithFloat:newQuantity];
+            editingItem.purchasedQuantity = [NSNumber numberWithInt:newQuantity];
         }
     } else if (alertView.tag == 2) {
         NSString *newName = [[alertView textFieldAtIndex:0] text];

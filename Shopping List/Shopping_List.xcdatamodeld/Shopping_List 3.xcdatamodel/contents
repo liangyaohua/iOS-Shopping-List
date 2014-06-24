@@ -32,9 +32,9 @@
     </entity>
     <elements>
         <element name="Product" positionX="-315" positionY="-153" width="128" height="103"/>
-        <element name="ShoppingItem" positionX="0" positionY="0" width="128" height="148"/>
-        <element name="ShoppingList" positionX="-153" positionY="-162" width="128" height="105"/>
-        <element name="ShoppingTrip" positionX="-180" positionY="-315" width="128" height="88"/>
-        <element name="ShoppingTripItem" positionX="70" positionY="-252" width="128" height="73"/>
+        <element name="ShoppingItem" positionX="-153" positionY="50" width="128" height="148"/>
+        <element name="ShoppingList" positionX="88" positionY="-117" width="128" height="103"/>
+        <element name="ShoppingTrip" positionX="79" positionY="81" width="128" height="88"/>
+        <element name="ShoppingTripItem" positionX="-81" positionY="270" width="128" height="73"/>
     </elements>
 </model>

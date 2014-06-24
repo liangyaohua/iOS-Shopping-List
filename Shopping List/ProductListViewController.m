@@ -11,9 +11,12 @@
 #import "ProductListViewController.h"
 #import "Product.h"
 #import "ShoppingList.h"
+#import "Reachability.h"
 
 @interface ProductListViewController ()
-
+{
+    Reachability *internetReachable;
+}
 @end
 
 @implementation ProductListViewController
@@ -27,9 +30,11 @@
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(updateProductList)];
         self.tableView.rowHeight = 50;
         
+        [self testInternetConnection];
+        
         [self loadProducts];
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProductList) name:@"ProductListDidChangeNotification" object:nil];
+        //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateProductList) name:@"ProductListDidChangeNotification" object:nil];
         //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(listsDidChange:) name:@"ShoppingListDidChangeNotification" object:nil];
     }
     return self;
@@ -37,24 +42,141 @@
 
 - (void)dealloc {
     //[[NSNotificationCenter defaultCenter] removeObserver:self name:@"ShoppingListDidChangeNotification" object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ProductListDidChangeNotification" object:nil];
+    //[[NSNotificationCenter defaultCenter] removeObserver:self name:@"ProductListDidChangeNotification" object:nil];
 }
 
-- (void)loadProducts
+- (void)testInternetConnection
+{
+    internetReachable = [Reachability reachabilityWithHostname:@"services.odata.org"];
+    
+    // Internet is reachable
+    internetReachable.reachableBlock = ^(Reachability*reach)
+    {
+        // Update the UI on the main thread
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSLog(@"Service reachable");
+        });
+    };
+    
+    // Internet is not reachable
+    internetReachable.unreachableBlock = ^(Reachability*reach)
+    {
+        // Update the UI on the main thread
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSLog(@"Couldn't connect to the service");
+        });
+    };
+    
+    [internetReachable startNotifier];
+}
+
+- (NSMutableArray*)simpleJsonParsing
+{
+    //-- Make URL request with server
+    NSHTTPURLResponse *response = nil;
+    NSString *jsonUrlString = [NSString stringWithFormat:@"http://services.odata.org/V4/Northwind/Northwind.svc/Products?$select=ProductID,ProductName,UnitPrice,UnitsInStock"];
+    NSURL *url = [NSURL URLWithString:[jsonUrlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    
+    //-- Get request and response though URL
+    NSURLRequest *request = [[NSURLRequest alloc]initWithURL:url];
+    NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:nil];
+    
+    //-- JSON Parsing
+    NSMutableArray *result = [NSJSONSerialization JSONObjectWithData:responseData options:NSJSONReadingMutableContainers error:nil];
+    //NSLog(@"Result = %@",result);
+    
+    NSMutableArray *value = [result valueForKey:@"value"];
+    //NSLog(@"Value = %@",value);
+    
+    return value;
+}
+
+- (void)clearProducts
 {
     NSManagedObjectContext *context = [self managedObjectContext];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Product" inManagedObjectContext:context];
-    
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Product" inManagedObjectContext: context];
     NSError *error;
     
     [fetchRequest setEntity:entity];
     [fetchRequest setIncludesSubentities:NO];
+    NSArray *oldProducts = [context executeFetchRequest:fetchRequest error:&error];
     
-    self.products = [[context executeFetchRequest:fetchRequest error:&error] mutableCopy];
+    for (NSManagedObject *product in oldProducts) {
+        [self.managedObjectContext deleteObject:product];
+        //[self.products removeObject:product];
+    }
+    [self.products removeAllObjects];
+    
+    if (![self.managedObjectContext save:&error]) {
+        NSLog(@"Error saving context: %@", [error localizedDescription]);
+    } else {
+        NSLog(@"Products cleared");
+    }
+}
+
+- (BOOL)productExist:(NSString *) name
+{
+    NSError *error;
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Product"
+                                              inManagedObjectContext:self.managedObjectContext];
+    NSPredicate *pred = [NSPredicate predicateWithFormat:@"name == %@", name];
+    [fetchRequest setPredicate:pred];
+    [fetchRequest setEntity:entity];
+    
+    NSArray *fetchedObjects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    if ([fetchedObjects count] > 0) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+- (void)loadProducts
+{    
+    if (internetReachable.isReachable) {
+        //[self clearProducts];
+        NSMutableArray *newProducts = [self simpleJsonParsing];
+       
+        NSError *error;
+        
+        for (int i = 0; i < [newProducts count]; i++) {
+            if (![self productExist:[[newProducts objectAtIndex:i] valueForKey:@"ProductName"]]) {
+                Product *item = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
+                
+                [item setName:[[newProducts objectAtIndex:i] valueForKey:@"ProductName"]];
+                [item setPrice:[[newProducts objectAtIndex:i] valueForKey:@"UnitPrice"]];
+                [item setStock:[[newProducts objectAtIndex:i] valueForKey:@"UnitsInStock"]];
+                [self.products addObject:item];
+            }
+        }
+        
+        if (![self.managedObjectContext save:&error]) {
+            NSLog(@"Error saving context: %@", [error localizedDescription]);
+        } else {
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"ProductListDidChangeNotification" object:self];
+            NSLog(@"Product updated");
+        }
+        
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Products updated" message:@"" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+        [alert show];
+        
+    } else {
+        NSManagedObjectContext *context = [self managedObjectContext];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Product" inManagedObjectContext: context];
+    
+        NSError *error;
+    
+        [fetchRequest setEntity:entity];
+        [fetchRequest setIncludesSubentities:NO];
+    
+        self.products = [[context executeFetchRequest:fetchRequest error:&error] mutableCopy];
+    }
+    
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
     [self.products sortUsingDescriptors:@[sortDescriptor]];
-    //NSLog(@"Products loaded");
 }
 
 - (void)updateProductList

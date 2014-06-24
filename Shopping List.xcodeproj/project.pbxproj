@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9E6668321959605600F3EAB9 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E6668311959605600F3EAB9 /* Reachability.m */; };
+		9E6668341959608A00F3EAB9 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E6668331959608A00F3EAB9 /* SystemConfiguration.framework */; };
 		A35A685F18DA56D800303070 /* PreferencesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A35A685E18DA56D800303070 /* PreferencesViewController.m */; };
 		A35A686218DB372600303070 /* TripViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A35A686118DB372600303070 /* TripViewController.m */; };
 		A36FA95318A40375002DCF8C /* ShoppingListsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A36FA95218A40375002DCF8C /* ShoppingListsViewController.m */; };
@@ -73,6 +75,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9E6668301959605600F3EAB9 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		9E6668311959605600F3EAB9 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
+		9E6668331959608A00F3EAB9 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		A35A685D18DA56D800303070 /* PreferencesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesViewController.h; sourceTree = "<group>"; };
 		A35A685E18DA56D800303070 /* PreferencesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesViewController.m; sourceTree = "<group>"; };
 		A35A686018DB372600303070 /* TripViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TripViewController.h; sourceTree = "<group>"; };
@@ -161,6 +166,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9E6668341959608A00F3EAB9 /* SystemConfiguration.framework in Frameworks */,
 				A38E64B418C6130D001AAD50 /* QuartzCore.framework in Frameworks */,
 				A3D0874618A3DC230087FF64 /* CoreGraphics.framework in Frameworks */,
 				A3D0874A18A3DC230087FF64 /* CoreData.framework in Frameworks */,
@@ -245,6 +251,7 @@
 				A3D0874118A3DC230087FF64 /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		A3D0874118A3DC230087FF64 /* Products */ = {
 			isa = PBXGroup;
@@ -258,6 +265,7 @@
 		A3D0874218A3DC230087FF64 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9E6668331959608A00F3EAB9 /* SystemConfiguration.framework */,
 				A38E64B318C6130D001AAD50 /* QuartzCore.framework */,
 				A3D0874318A3DC230087FF64 /* Foundation.framework */,
 				A3D0874518A3DC230087FF64 /* CoreGraphics.framework */,
@@ -300,6 +308,8 @@
 				A3D0878318A3ECD50087FF64 /* Shopping_List.xcdatamodeld */,
 				A3D0875418A3DC240087FF64 /* AppDelegate.h */,
 				A3D0875518A3DC240087FF64 /* AppDelegate.m */,
+				9E6668301959605600F3EAB9 /* Reachability.h */,
+				9E6668311959605600F3EAB9 /* Reachability.m */,
 				A3D0875A18A3DC240087FF64 /* Images.xcassets */,
 				A3D0874C18A3DC230087FF64 /* Supporting Files */,
 			);
@@ -481,6 +491,7 @@
 				A3B91FC318DDC9BD006308E3 /* ShoppingList.m in Sources */,
 				A3F1522018DF41D0003BCDCD /* HTEmailAutocompleteTextField.m in Sources */,
 				A38E64AD18C612EB001AAD50 /* MOORefreshView.m in Sources */,
+				9E6668321959605600F3EAB9 /* Reachability.m in Sources */,
 				A3E4C45618A840E800815144 /* SelectItemsViewController.m in Sources */,
 				A3B91FC618DDC9BD006308E3 /* ShoppingTrip.m in Sources */,
 				A35A685F18DA56D800303070 /* PreferencesViewController.m in Sources */,
@@ -618,7 +629,7 @@
 				GCC_PREFIX_HEADER = "Shopping List/Shopping List-Prefix.pch";
 				INFOPLIST_FILE = "Shopping List/Shopping List-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Shopping List";
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
@@ -636,7 +647,7 @@
 				GCC_PREFIX_HEADER = "Shopping List/Shopping List-Prefix.pch";
 				INFOPLIST_FILE = "Shopping List/Shopping List-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Shopping List";
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
@@ -659,7 +670,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "Shopping ListTests/Shopping ListTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Shopping ListTests";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -677,7 +688,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Shopping List/Shopping List-Prefix.pch";
 				INFOPLIST_FILE = "Shopping ListTests/Shopping ListTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Shopping ListTests";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};

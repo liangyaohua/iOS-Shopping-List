@@ -68,52 +68,31 @@
     return YES;
 }
 
-- (NSMutableArray*)simpleJsonParsing
-{
-    //-- Make URL request with server
-    NSHTTPURLResponse *response = nil;
-    NSString *jsonUrlString = [NSString stringWithFormat:@"http://services.odata.org/V4/Northwind/Northwind.svc/Products?$select=ProductID,ProductName,UnitPrice,UnitsInStock"];
-    NSURL *url = [NSURL URLWithString:[jsonUrlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    
-    //-- Get request and response though URL
-    NSURLRequest *request = [[NSURLRequest alloc]initWithURL:url];
-    NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:nil];
-    
-    //-- JSON Parsing
-    NSMutableArray *result = [NSJSONSerialization JSONObjectWithData:responseData options:NSJSONReadingMutableContainers error:nil];
-    //NSLog(@"Result = %@",result);
-    
-    NSMutableArray *value = [result valueForKey:@"value"];
-    //NSLog(@"Value = %@",value);
-    
-    return value;
-}
-
 - (void)seedExampleData
 {
-    NSMutableArray *productsArray = [self simpleJsonParsing];
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Product" inManagedObjectContext:context];
+    
+    NSError *error;
+    
+    [fetchRequest setEntity:entity];
+    [fetchRequest setIncludesSubentities:NO];
+    
+    NSMutableArray *productsArray = [[context executeFetchRequest:fetchRequest error:&error] mutableCopy];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
+    [productsArray sortUsingDescriptors:@[sortDescriptor]];
 
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
     
     if (![ud boolForKey:@"ShoppingListUserDefaultsExampleData"]) {
         NSLog(@"Application does not have data. Seeding with example data");
         
-        NSMutableArray *products = [[NSMutableArray alloc] init];
-        int i = 0;
-        for (; i < [productsArray count]; i++) {
-            Product *item = [NSEntityDescription insertNewObjectForEntityForName:@"Product" inManagedObjectContext:self.managedObjectContext];
-            [item setName:[[productsArray objectAtIndex:i] valueForKey:@"ProductName"]];
-            [item setPrice:[[productsArray objectAtIndex:i] valueForKey:@"UnitPrice"]];
-            [item setStock:[[productsArray objectAtIndex:i] valueForKey:@"UnitsInStock"]];
-            [products addObject:item];
-        }
-        
         ShoppingList *list = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingList" inManagedObjectContext:self.managedObjectContext];
-        [list setName:@"Example"];
+        [list setName:@"Quotation 1"];
         [list setDate:[NSDate date]];
         
-        i = 1;
-        for (Product *p in products) {
+        for (Product *p in productsArray) {
             ShoppingItem *item = [NSEntityDescription insertNewObjectForEntityForName:@"ShoppingItem" inManagedObjectContext:self.managedObjectContext];
             [item setProduct:p];
             [item setInList:list];
@@ -122,7 +101,6 @@
             [item setPrice:p.price];
             [item setDate:[NSDate date]];
             [item setBought:[[NSNumber alloc] initWithBool:YES]];
-            i++;
         }
 
         NSError *error;
